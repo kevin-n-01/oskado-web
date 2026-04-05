@@ -15,6 +15,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAddBrand, useBrands } from "@/hooks/useBrands";
 
 
 
@@ -25,7 +26,7 @@ export const AddItem = () => {
 
     // Load selectable options from Dim Tables
 
-    const [brands, setBrands] = useState<{id: number, brand_name: string}[]>([]);
+    // const [brands, setBrands] = useState<{id: number, brand_name: string}[]>([]);
     const [chosenBrandId, setChosenBrandId] = useState<number>();
 
     const [colors, setColors] = useState<{id: number, color_name: string}[]>([]);
@@ -57,18 +58,8 @@ export const AddItem = () => {
 
     // ---- Brands ------------------------------
 
-    useEffect(() => {
-        const fetchBrands = async () => {
-            try {
-                const result = await window.api.brands.getBrands();
-                setBrands(result);
-            } catch(error) {
-                throw new Error(error instanceof Error ? error.message : "Unknown error while retrieving brands");
-            }
-        }
-
-        fetchBrands();
-    }, [])
+    const {data: brands, isLoading: isLoadingBrands } = useBrands();
+    const {mutateAsync: addBrand, isPending: addBrandisPending } = useAddBrand();
 
     const handleChosenBrand = (brand: string | null): void => {
         const chosenId = brands?.find((b) => b.brand_name === brand)?.id;
@@ -77,8 +68,7 @@ export const AddItem = () => {
     }
 
     const handleAddNewBrand = async (brand: string): Promise<void> => {
-        const newBrand = await window.api.brands.addBrand(brand);
-        setBrands((prev) =>[...(prev), newBrand]);
+        const newBrand = await addBrand(brand);
         setChosenBrandId(newBrand.id);
         console.log("Brand Added: ", newBrand.brand_name)
     }
@@ -252,6 +242,7 @@ export const AddItem = () => {
                                             labelKey="brand_name" 
                                             handleChosenItem={handleChosenBrand} 
                                             handleAddNew={handleAddNewBrand}
+                                            addNewPending={addBrandisPending}
                                     />
                                 </Field>
                                 <Field>

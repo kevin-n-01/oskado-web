@@ -7,24 +7,30 @@ import { Sidebar } from './components/Sidebar'
 import { Transactions } from './pages/Transactions'
 import { History } from './pages/History'
 import { Analytics } from './pages/Analytics'
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const App = (): ReactNode => {
 
+    const queryClient = new QueryClient();
+
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route element={<Sidebar />}>
-                    <Route path='/' element={<Dashboard />} />
-                    <Route path='/catalog' element={<Catalog />} />
-                    <Route path='/addItem' element={<AddItem />} />
-                    <Route path='/transactions' element={<Transactions />} />
-                    <Route path='/history' element={<History />} />
-                    <Route path='/analytics' element={<Analytics />} />
-                </Route>
+        <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+                <Routes>
+                    <Route element={<Sidebar />}>
+                        <Route path='/' element={<Dashboard />} />
+                        <Route path='/catalog' element={<Catalog />} />
+                        <Route path='/addItem' element={<AddItem />} />
+                        <Route path='/transactions' element={<Transactions />} />
+                        <Route path='/history' element={<History />} />
+                        <Route path='/analytics' element={<Analytics />} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+            <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
 
-            </Routes>
-
-        </BrowserRouter>
     )
 }
 

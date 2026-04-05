@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from "@/components/ui/combobox"
-import { PlusSquare } from "lucide-react";
+import { Loader2, PlusSquare } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 interface OptionSelectionProps<T> {
@@ -11,19 +11,18 @@ interface OptionSelectionProps<T> {
     usesDialog?: boolean;
     handleChosenItem: (item_name: string | null) => void;
     handleAddNew?: (inputValue: string) => Promise<void>;
+    addNewPending?: boolean;
     onOpenDialog?: () => void;
     renderItem?: (item: T) => ReactNode;
     hideAddNew?: boolean
     disabled?: boolean
 }
-const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handleChosenItem, handleAddNew, onOpenDialog, renderItem, hideAddNew, disabled}: OptionSelectionProps<T>) => {
-    console.log("Testing dialog switch for ", listName, usesDialog, handleAddNew);
+const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handleChosenItem, handleAddNew, addNewPending, onOpenDialog, renderItem, hideAddNew, disabled}: OptionSelectionProps<T>) => {
     const [inputValue, setInputValue] = useState<string>('');
 
     return (
      <Combobox disabled={disabled} items={items} onValueChange={handleChosenItem} autoHighlight>
             <ComboboxInput 
-                className="cursor-pointer! focus:cursor-text!"
                 placeholder={`Select a ${listName}...`}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={disabled}
@@ -31,13 +30,15 @@ const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handl
             <ComboboxContent >
                 {!usesDialog && !hideAddNew && (
                 <ComboboxEmpty>
-                    <Button size="default" className="w-full justify-start" variant="ghost" onClick={() => usesDialog ? onOpenDialog?.() : handleAddNew?.(inputValue)}>
-                        <PlusSquare />
-                        {`Add ${inputValue}...`}
+                    <Button size="default" disabled={addNewPending} className="w-full justify-start" variant="ghost" onClick={() => handleAddNew?.(inputValue)}>
+                        {addNewPending ? 
+                            <><Loader2 className="animate-spin"/>{`Adding ${inputValue}...`}</> : 
+                            <><PlusSquare />{`Add ${inputValue}`}</>
+                        }
                     </Button>
                 </ComboboxEmpty>)}
                 {usesDialog && !hideAddNew && (
-                    <Button size="default" variant="ghost" onClick={() => usesDialog ? onOpenDialog?.() : handleAddNew?.(inputValue)}>
+                    <Button size="default" variant="ghost" onClick={() => onOpenDialog?.()}>
                         <PlusSquare />
                         {`Add new ${listName}`}
                     </Button>

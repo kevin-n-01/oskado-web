@@ -28,3 +28,8 @@ export type ItemFormData = {
 
 
 }
+
+export type Brand = {
+    id: number;
+    brand_name: string
+}
