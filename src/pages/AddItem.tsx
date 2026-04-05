@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAddBrand, useBrands } from "@/hooks/useBrands";
+import { useCategories } from "@/hooks/useCategories";
 
 
 
@@ -26,8 +27,6 @@ export const AddItem = () => {
 
     // Load selectable options from Dim Tables
 
-    // const [brands, setBrands] = useState<{id: number, brand_name: string}[]>([]);
-    const [chosenBrandId, setChosenBrandId] = useState<number>();
 
     const [colors, setColors] = useState<{id: number, color_name: string}[]>([]);
     const [chosenColorId, setChosenColorId] = useState<number>();
@@ -36,7 +35,7 @@ export const AddItem = () => {
     const [locations, setLocations]= useState<StoreLocation[]>([]);
     const [chosenLocationId, setChosenLocationId] = useState<number>(0);
 
-    const [categories, setCategories] = useState<{id: number, category_name: string}[]>([]);
+    //const [categories, setCategories] = useState<{id: number, category_name: string}[]>([]);
     const [subCategories, setSubCategories] = useState<{id: number, sub_category_name: string}[]>([]);
     const [chosenCategoryId, setChosenCategoryId] = useState<number | null>();
     const [chosenSubCategoryId, setChosenSubCategoryId] = useState<number>(0);
@@ -60,6 +59,8 @@ export const AddItem = () => {
 
     const {data: brands, isLoading: isLoadingBrands } = useBrands();
     const {mutateAsync: addBrand, isPending: addBrandisPending } = useAddBrand();
+    const [chosenBrandId, setChosenBrandId] = useState<number>();
+
 
     const handleChosenBrand = (brand: string | null): void => {
         const chosenId = brands?.find((b) => b.brand_name === brand)?.id;
@@ -100,22 +101,24 @@ export const AddItem = () => {
     }
 
     // ---- Categories and Sub Categories -------------------
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                console.log('fetching categories...')
-                const categories = await window.api.categories.getCategories();
-                setCategories(categories);
-            } catch(error) {
-                console.log(error instanceof Error ? error.message : "Unknown error occurred while fetching categories.")
-            }
-        }
-        fetchCategories()
-        console.log('categories retrieved: ', categories);
-    }, [])
+    // useEffect(() => {
+    //     const fetchCategories = async () => {
+    //         try {
+    //             console.log('fetching categories...')
+    //             const categories = await window.api.categories.getCategories();
+    //             setCategories(categories);
+    //         } catch(error) {
+    //             console.log(error instanceof Error ? error.message : "Unknown error occurred while fetching categories.")
+    //         }
+    //     }
+    //     fetchCategories()
+    //     console.log('categories retrieved: ', categories);
+    // }, [])
+
+    const { data: categories } = useCategories();
 
     const handleChosenCategory = (category_name: string | null) => {
-        const categoryId = categories?.find((c) => c.category_name === category_name)?.id;
+        const categoryId = categories?.find((c) => c.categoryName === category_name)?.id;
         setChosenCategoryId(categoryId ?? 0);
     }
 
@@ -214,7 +217,7 @@ export const AddItem = () => {
                                         listName="category"
                                         items={categories}
                                         idKey="id"
-                                        labelKey="category_name"
+                                        labelKey="categoryName"
                                         handleChosenItem={handleChosenCategory}
                                         hideAddNew
                                     />
@@ -239,7 +242,7 @@ export const AddItem = () => {
                                             listName="brand" 
                                             items={brands} 
                                             idKey="id" 
-                                            labelKey="brand_name" 
+                                            labelKey="brandName" 
                                             handleChosenItem={handleChosenBrand} 
                                             handleAddNew={handleAddNewBrand}
                                             addNewPending={addBrandisPending}

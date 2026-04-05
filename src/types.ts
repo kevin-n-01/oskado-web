@@ -31,5 +31,11 @@ export type ItemFormData = {
 
 export type Brand = {
     id: number;
-    brand_name: string
+    brandName: string
+}
+
+export type Category = {
+    id: number;
+    categoryName: string;
+    categoryShortName: string;
 }
