@@ -1,7 +1,7 @@
 
 import OptionSelector from "../components/OptionSelector";
-import { useEffect, useState } from "react"
-import type { Color, ItemFormData, LocationFormData, StoreLocation } from "@/types";
+import { useState } from "react"
+import type { Color, ItemFormData, Location, Size } from "@/types";
 import { NewLocationDialog } from "@/components/NewLocationDialog";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -20,6 +20,8 @@ import { useCategories } from "@/hooks/useCategories";
 import { useAddSubcategory, useSubCategories } from "@/hooks/useSubCategories";
 import { useColors } from "@/hooks/useColors";
 import ColorPicker from "@/components/ColorPicker";
+import { useAddLocation, useLocations } from "@/hooks/useLocations";
+import { useAddSize, useSizes } from "@/hooks/useSizes";
 
 
 
@@ -28,21 +30,8 @@ export const AddItem = () => {
     // Any needed form consts
     const genderMap = ["Female", "Male", "Unisex"];
 
-    // Load selectable options from Dim Tables
-
-
-
-    const [isLocationDialogOpen, setIsLocationDialogOpen] = useState<boolean>(false);
-    const [locations, setLocations]= useState<StoreLocation[]>([]);
-    const [chosenLocationId, setChosenLocationId] = useState<number>(0);
-
-    //const [categories, setCategories] = useState<{id: number, category_name: string}[]>([]);
-
-
     // Input fields not managed by RHT
     const [purchaseDate, setPurchaseDate] = useState<Date | undefined>();
-
-
 
     // ---- Brands ------------------------------
 
@@ -61,6 +50,22 @@ export const AddItem = () => {
         const newBrand = await addBrand(brand);
         setChosenBrandId(newBrand.id);
         console.log("Brand Added: ", newBrand.brand_name)
+    }
+
+    // ---- Sizes ------------------------------
+
+    const { data: sizes } = useSizes();
+    const { mutateAsync: addSize, isPending: addSizeIsPending } = useAddSize();
+    const [chosenSizeId, setChosenSizeId] = useState<number>();
+
+    const handleChosenSize = (size: string | null): void => {
+        const chosenId = sizes?.find((s) => s.size === size)?.id;
+        setChosenSizeId(chosenId);
+    }
+
+    const handleAddNewSize = async (size: string): Promise<void> => {
+        const newSize = await addSize(size);
+        setChosenSizeId(newSize.id);
     }
 
     //---Colors----------------------------
@@ -96,43 +101,26 @@ export const AddItem = () => {
     // ---- Locations -----------------------
     const openLocationDialog = () => setIsLocationDialogOpen(true);
 
-    useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                const locations = await window.api.locations.getLocations();
-                setLocations(locations);
-            } catch (error) {
-                throw new Error(error instanceof Error ? error.message : "Unknown error while retrieving colors");
-            }
-        }
-        fetchLocations();
-    }, [])
+    const { data: locations } = useLocations();
+    const [isLocationDialogOpen, setIsLocationDialogOpen] = useState<boolean>(false);
+    const [chosenLocationId, setChosenLocationId] = useState<number>(0);
+    const {mutateAsync: addLocation } = useAddLocation();
 
-    const handleChosenLocation = (location: string | null): void => {
-        const id = locations.find((l) => l.business_name === location)?.id ?? 0;
-        setChosenLocationId(id);
+    const handleLocationAdded =  async (location: Location): Promise<void> => {
+        const newLocation = await addLocation(location);
+        setChosenLocationId(newLocation.id);
     }
 
-    const handleLocationAdded = async (location: LocationFormData): Promise<void> => {
-        const newLocation = await window.api.locations.addLocation(
-            location.business_name,
-            location.short_name,
-            location.description ?? '',
-            location.street_address ?? '',
-            location.city ?? '',
-            location.state ?? '',
-            location.image_path ?? ''
-        );
-        setLocations((prev) => [...(prev), newLocation as StoreLocation])
-        setChosenLocationId(newLocation.id)
+    const handleChosenLocation = (locationName: string | null): void => {
+        const chosenLocation = locations?.find((l) => l.businessName === locationName)?.id
+        setChosenLocationId(chosenLocation ?? 0);
     }
 
     //Upload Image Handler
-    const [imgPath, setImgPath] = useState<string | null>();
+    const [imgPath] = useState<string | null>();
 
     const handleUpload = async (): Promise<void> => {
-        const newPath = await window.api.files.selectImage();
-        setImgPath(newPath);
+        // TODO: Replace with new web based upload version
     }
 
     const getFileName = (path: string): string | undefined => {
@@ -213,7 +201,7 @@ export const AddItem = () => {
                                     />
                                 </Field>
                             </FieldGroup>
-                            <FieldGroup className="grid grid-cols-4 gap-2">
+                            <FieldGroup className="grid grid-cols-5 gap-2">
                                 <Field>
                                     <FieldLabel>Brand</FieldLabel>
                                     <OptionSelector 
@@ -251,13 +239,26 @@ export const AddItem = () => {
                                             )}
                                         />
                                 </Field>
-                                <Field orientation="horizontal">
-                                    <Checkbox id="isChild" defaultChecked {...register("is_child")} />
-                                    <FieldLabel htmlFor="isChild">Is this children's clothing?</FieldLabel>
-                                </Field>
+                                    <Field>
+                                        <FieldLabel>Size</FieldLabel>
+                                        <OptionSelector
+                                            listName="size"
+                                            items={sizes}
+                                            idKey="id"
+                                            labelKey="size"
+                                            handleChosenItem={handleChosenSize}
+                                            handleAddNew={handleAddNewSize}
+                                            addNewPending={addSizeIsPending}
+                                            />
+                                    </Field>
+                                    <div className='flex items-end h-full pb-2'>
+                                        <Field orientation="horizontal">
+                                            <Checkbox id="isChild" defaultChecked {...register("is_child")} />
+                                            <FieldLabel htmlFor="isChild">Children's?</FieldLabel>
+                                        </Field>
+                                    </div>
+
                             </FieldGroup>
-                            
-                            
                         </FieldSet>
                         <FieldSeparator />
                         <FieldSet>
@@ -269,7 +270,7 @@ export const AddItem = () => {
                                             listName="location"
                                             items={locations}
                                             idKey="id"
-                                            labelKey="business_name"
+                                            labelKey="businessName"
                                             onOpenDialog={openLocationDialog}
                                             handleChosenItem={handleChosenLocation}
                                             usesDialog
@@ -316,15 +317,16 @@ export const AddItem = () => {
                         <FieldSet>
                             <FieldLegend className='pb-2'>Add Product Photo</FieldLegend>
                             <div className="flex items-center gap-2 max-w-1/2">
-                                <Button className="w-1/3 max-w-36" type="button" variant="secondary" onClick={handleUpload}>Upload Image</Button>
+                                <Button disabled className="w-1/3 max-w-36" type="button" variant="secondary" onClick={handleUpload}>Upload Image</Button>
                                 {imgPath && <span className="text-sm text-muted-foreground">{getFileName(imgPath)}</span>}
                             </div>
                         </FieldSet>
                         <FieldSet>
                             <FieldGroup className="flex flex-row justify-end gap-2">
                                 <Button variant="secondary">Cancel</Button>
-                                <Button>Submit Now</Button>
-                                <Button>I'm Ready to List - Add All Details</Button>
+                                <Button>Submit</Button>
+                                <Button>Save for Later</Button>
+                                <Button>Add More Details</Button>
                             </FieldGroup>
                         </FieldSet>
                     </FieldGroup>
@@ -333,9 +335,6 @@ export const AddItem = () => {
         </Card>
          {/*Conditionally Render New Location Dialog*/}
          <NewLocationDialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen} onLocationAdded={handleLocationAdded}/>
-        
     </div>
-        
-
     )
 }

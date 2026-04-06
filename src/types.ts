@@ -52,3 +52,19 @@ export type Color = {
     colorName: string;
     hexCode: string;
 }
+
+export type Size = {
+    id: number;
+    size: string;
+}
+
+export type Location = {
+    id: number;
+    businessName: string;
+    shortName: string;
+    description: string | undefined;
+    streetAddress: string | undefined;
+    city: string | undefined;
+    state: string | undefined;
+    imagePath: string | undefined;
+}

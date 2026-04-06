@@ -5,12 +5,12 @@ import { Input } from '@/components/ui/input';
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import type { LocationFormData } from "@/types";
+import type { Location, LocationFormData } from "@/types";
 
 interface NewLocationDialogProps {
     open: boolean;
     onOpenChange: Dispatch<SetStateAction<boolean>>;
-    onLocationAdded: (data: LocationFormData) => Promise<void>;
+    onLocationAdded: (data: Location) => Promise<void>;
 }
 
 

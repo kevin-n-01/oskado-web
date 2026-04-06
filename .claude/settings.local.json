@@ -3,7 +3,10 @@
     "allow": [
       "Bash(wc:*)",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "mcp__Neon__list_projects",
+      "mcp__Neon__describe_table_schema",
+      "mcp__Neon__get_database_tables"
     ]
   }
 }
