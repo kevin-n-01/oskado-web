@@ -1,11 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import sql from '../src/lib/db';
+import humps from 'humps';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'GET') {
         try {
             const brands = await sql`SELECT * FROM brands ORDER BY brand_name`;
-            return res.status(200).json(brands);
+            return res.status(200).json(humps.camelizeKeys(brands));
         } catch (error) {
             console.error(error instanceof Error ? error.message : "Unknown Error");
             return res.status(500).json({error: error instanceof Error ? error.message : "Internal Server Error"})
@@ -20,7 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if(existing.length > 0) return res.status(400).json({error: "Brand Name already exists"});
 
             const result = await sql`INSERT INTO brands (brand_name) VALUES (${brand_name}) RETURNING * `;
-            return res.status(201).json(result[0]);
+            return res.status(201).json(humps.camelizeKeys(result[0]));
         } catch(error) {
             console.error(error instanceof Error ? error.message : "Unknown Error");
             return res.status(500).json({error: error instanceof Error ? error.message : "Internal Server Error"})

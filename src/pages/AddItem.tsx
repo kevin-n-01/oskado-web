@@ -1,7 +1,7 @@
 
 import OptionSelector from "../components/OptionSelector";
 import { useEffect, useState } from "react"
-import type { ItemFormData, LocationFormData, StoreLocation } from "@/types";
+import type { Color, ItemFormData, LocationFormData, StoreLocation } from "@/types";
 import { NewLocationDialog } from "@/components/NewLocationDialog";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -17,6 +17,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAddBrand, useBrands } from "@/hooks/useBrands";
 import { useCategories } from "@/hooks/useCategories";
+import { useAddSubcategory, useSubCategories } from "@/hooks/useSubCategories";
+import { useColors } from "@/hooks/useColors";
+import ColorPicker from "@/components/ColorPicker";
 
 
 
@@ -28,42 +31,28 @@ export const AddItem = () => {
     // Load selectable options from Dim Tables
 
 
-    const [colors, setColors] = useState<{id: number, color_name: string}[]>([]);
-    const [chosenColorId, setChosenColorId] = useState<number>();
 
     const [isLocationDialogOpen, setIsLocationDialogOpen] = useState<boolean>(false);
     const [locations, setLocations]= useState<StoreLocation[]>([]);
     const [chosenLocationId, setChosenLocationId] = useState<number>(0);
 
     //const [categories, setCategories] = useState<{id: number, category_name: string}[]>([]);
-    const [subCategories, setSubCategories] = useState<{id: number, sub_category_name: string}[]>([]);
-    const [chosenCategoryId, setChosenCategoryId] = useState<number | null>();
-    const [chosenSubCategoryId, setChosenSubCategoryId] = useState<number>(0);
+
 
     // Input fields not managed by RHT
     const [purchaseDate, setPurchaseDate] = useState<Date | undefined>();
 
-    // ---- Initialize React Hook Table & Submit Function --------------------
-    const { register, handleSubmit, control } = useForm<ItemFormData>(
-        {defaultValues: {
-            gender: "Female"
-        }}
-    );
-
-    const onSubmit: SubmitHandler<ItemFormData> = async (data: ItemFormData) => {
-        console.log('submitted!', data);
-    }
 
 
     // ---- Brands ------------------------------
 
-    const {data: brands, isLoading: isLoadingBrands } = useBrands();
+    const {data: brands } = useBrands();
     const {mutateAsync: addBrand, isPending: addBrandisPending } = useAddBrand();
     const [chosenBrandId, setChosenBrandId] = useState<number>();
 
 
     const handleChosenBrand = (brand: string | null): void => {
-        const chosenId = brands?.find((b) => b.brand_name === brand)?.id;
+        const chosenId = brands?.find((b) => b.brandName=== brand)?.id;
         setChosenBrandId(chosenId);
         console.log("Chosen brand: ", chosenId, brand); 
     }
@@ -76,74 +65,32 @@ export const AddItem = () => {
 
     //---Colors----------------------------
 
-    useEffect(() => {
-        const fetchColors = async () => {
-            try {
-                const colors = await window.api.colors.getColors();
-                setColors(colors);
-            } catch (error) {
-                throw new Error(error instanceof Error ? error.message : "Unknown error while retrieving colors");
-            }
-        }
-        fetchColors()
-    }, [])
+    const {data: colors} = useColors();
+    const [chosenColorIds, setChosenColorIds] = useState<number[]>();
 
-    const handleChosenColor = (color: string | null): void => {
-        const colorId = colors.find((c) => c.color_name === color)?.id
-        setChosenColorId(colorId);
-        console.log("Chosen color: ", colorId, color);
+    const handleChosenColors = (colors: Color[]) => {
+        const colorIds = colors.map((c) => c.id);
+        setChosenColorIds(colorIds);
     }
 
-    const handleAddNewColor = async (color: string): Promise<void> => {
-        const newColor = await window.api.colors.addColor(color);
-        setColors((prev) => [...(prev), newColor]);
-        setChosenColorId(newColor.id)
-    }
-
-    // ---- Categories and Sub Categories -------------------
-    // useEffect(() => {
-    //     const fetchCategories = async () => {
-    //         try {
-    //             console.log('fetching categories...')
-    //             const categories = await window.api.categories.getCategories();
-    //             setCategories(categories);
-    //         } catch(error) {
-    //             console.log(error instanceof Error ? error.message : "Unknown error occurred while fetching categories.")
-    //         }
-    //     }
-    //     fetchCategories()
-    //     console.log('categories retrieved: ', categories);
-    // }, [])
+    // ---- Categories -----------
 
     const { data: categories } = useCategories();
+    const [chosenCategoryId, setChosenCategoryId] = useState<number | null>();
 
-    const handleChosenCategory = (category_name: string | null) => {
-        const categoryId = categories?.find((c) => c.categoryName === category_name)?.id;
-        setChosenCategoryId(categoryId ?? 0);
-    }
+    const { data: subCategories, isLoading: isLoadingSubCategories } = useSubCategories(chosenCategoryId ?? null);
+    const [chosenSubCategoryId, setChosenSubCategoryId] = useState<number>(0);
+    const {mutateAsync: addNewSubcategory, isPending: addSubCategoryIsPending } = useAddSubcategory();
 
-    useEffect(() => {
-        if(!chosenCategoryId) return;
-        const fetchSubCategories = async (categoryId: number) => {
-            try {
-                const subCategories = await window.api.categories.getSubCategories(categoryId);
-                setSubCategories(subCategories);
-            } catch (error) {
-                console.log(error instanceof Error ? error.message : "Unknown error while fetching subcategories");
-            }
-        }
-        fetchSubCategories(chosenCategoryId);
-    }, [chosenCategoryId])
-
-    const handleChosenSubCategory = (sub_category_name: string | null) => {
-        const subCategoryId = subCategories?.find((c) => c.sub_category_name === sub_category_name)?.id;
+    const handleChosenSubCategory = (subCategoryName: string | null) => {
+        const subCategoryId = subCategories?.find((c) => c.subCategoryName === subCategoryName)?.id;
         setChosenSubCategoryId(subCategoryId ?? 0);
     }
 
-    const handleAddNewSubCategory = async (sub_category_name: string): Promise<void> => {
-        const newSubCategory = await window.api.categories.addSubCategory(chosenCategoryId ?? 0, sub_category_name)
+    const handleAddNewSubCategory = async (subCategoryName: string): Promise<void> => {
+        if(!chosenCategoryId) return;
+        const newSubCategory = await addNewSubcategory({ categoryId: chosenCategoryId, subCategoryName });
         setChosenSubCategoryId(newSubCategory.id);
-        setSubCategories((prev) => [...prev, newSubCategory]);
     }
 
     // ---- Locations -----------------------
@@ -192,16 +139,29 @@ export const AddItem = () => {
         return path.split(/[\\/]/).pop()
     }
 
+        // ---- Initialize React Hook Table & Submit Function --------------------
+    const { register, handleSubmit, control } = useForm<ItemFormData>(
+        {defaultValues: {
+            gender: "Female",
+        }}
+    );
+
+    const onSubmit: SubmitHandler<ItemFormData> = async (data: ItemFormData) => {
+        console.log('submitted!', data);
+    }
+
+
     return (
     <div>
-        <Card className="w-3/4 bg-center p-6 m-5 mx-auto">
+        <Card className="w-3/4 bg-center p-6 m-5 mx-auto overflow-visible">
             <CardHeader className="text-2xl text-accent-foreground">Add New Item</CardHeader>
+
             <CardContent>
                 <form id='add-new-item-form' onSubmit={handleSubmit(onSubmit)}>
                     <FieldGroup>
                         <FieldSet>
                             <FieldLegend className='pb-2'>Product Information</FieldLegend>
-                            <Field>
+                            <Field className="max-w-1/2">
                                 <FieldLabel htmlFor="short_description">Item Description</FieldLabel>
                                 <FieldDescription>Add a short description that will serve as the product name</FieldDescription>
                                 <Textarea {...register('short_description')}
@@ -213,13 +173,30 @@ export const AddItem = () => {
                             <FieldGroup className="grid grid-cols-2 gap-2">
                                 <Field>
                                     <FieldLabel>Category</FieldLabel>
-                                    <OptionSelector
-                                        listName="category"
-                                        items={categories}
-                                        idKey="id"
-                                        labelKey="categoryName"
-                                        handleChosenItem={handleChosenCategory}
-                                        hideAddNew
+                                    <Controller 
+                                        name='categoryId'
+                                        control={control}
+                                        render={({field}) => {
+                                            return (
+                                                <Select value={field.value ? String(field.value) : ''} onValueChange={(value) => {
+                                                    field.onChange(value);
+                                                    setChosenCategoryId(Number(value))}}
+                                                >
+                                                    <SelectTrigger className='w-full'>
+                                                        <SelectValue placeholder='Select a category...' />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            {categories?.map((category) => (
+                                                                <SelectItem key={category.id} value={String(category.id)}>
+                                                                    {category.categoryName}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                            )
+                                        }}
                                     />
                                 </Field>
                                 <Field>
@@ -228,10 +205,11 @@ export const AddItem = () => {
                                         listName="sub-category"
                                         items={subCategories}
                                         idKey="id"
-                                        labelKey="sub_category_name"
+                                        labelKey="subCategoryName"
                                         handleChosenItem={handleChosenSubCategory}
                                         handleAddNew={handleAddNewSubCategory}
-                                        disabled={!chosenCategoryId || chosenCategoryId === 0}
+                                        addNewPending={addSubCategoryIsPending}
+                                        disabled={!chosenCategoryId || chosenCategoryId === 0 || isLoadingSubCategories}
                                     />
                                 </Field>
                             </FieldGroup>
@@ -250,14 +228,7 @@ export const AddItem = () => {
                                 </Field>
                                 <Field>
                                     <FieldLabel>Color</FieldLabel>
-                                            <OptionSelector
-                                                listName="color"
-                                                items={colors}
-                                                idKey="id"
-                                                labelKey="color_name"
-                                                handleChosenItem={handleChosenColor}
-                                                handleAddNew={handleAddNewColor}
-                                            />
+                                    <ColorPicker colors={colors} onValueChange={handleChosenColors}/>
                                 </Field>
                                 <Field>
                                     <FieldLabel>Gender</FieldLabel>

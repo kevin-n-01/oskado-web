@@ -15,8 +15,8 @@ export const useBrands = () => {
 export const useAddBrand = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (brand_name: string) => {
-            const res = await axios.post('/api/brands', { brand_name });
+        mutationFn: async (brandName: string) => {
+            const res = await axios.post('/api/brands', { brandName });
             return res.data;
         },
         onSuccess: () => {

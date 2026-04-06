@@ -21,6 +21,7 @@ export type LocationFormData = {
 
 export type ItemFormData = {
     brand_id: number;
+    categoryId: number;
     gender: string;
     is_child: boolean;
     purchase_price: number;
@@ -38,4 +39,16 @@ export type Category = {
     id: number;
     categoryName: string;
     categoryShortName: string;
+}
+
+export type SubCategory = {
+    id: number;
+    categoryId: number;
+    subCategoryName: string;
+}
+
+export type Color = {
+    id: number;
+    colorName: string;
+    hexCode: string;
 }
