@@ -6,12 +6,12 @@
   - `inventory_sku` (FK → inventory.sku), `website_id` (FK → websites.id)
   - Check websites table schema first
 
-- [ ] **#2** Create Postgres sequence for SKU generation
+- [x] **#2** Create Postgres sequence for SKU generation (`sku_number`, min 1 / max 1,000,000 / cache 5 / cycle)
   - Global `inventory_sku_seq` sequence
   - Backend prefixes with category `short_name` (e.g. `TOP-1`, `TOP-2`)
   - Confirm date format for `inventory_status_history.changed_at` (currently text)
 
-- [ ] **#3** Build `POST /api/inventory` endpoint
+- [x] **#3** Build `POST /api/inventory` endpoint
   - Transaction: generate SKU → INSERT inventory → INSERT inventory_status_history (status: `Inventoried`)
   - Returns new SKU
 

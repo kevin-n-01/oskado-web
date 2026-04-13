@@ -13,10 +13,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     } else if (req.method === 'POST') {
         try {
-            const { businessName, businessShortName, description, streetAddress, city, state, img } = req.body;
-            if(!(businessName && businessShortName)) return res.status(400).json({error: "Business Name and Short Name required."});
-            const result = await sql`INSERT INTO locations (business_name, short_name, description, street_address, city, state, image_path)
-                VALUES (${businessName}, ${businessShortName}, ${description ?? null}, ${streetAddress ?? null}, ${city ?? null}, ${state ?? null}, ${img ?? null})
+            const { businessName, shortName, description, streetAddress, city, state, imagePath, thumbnailPath } = req.body;
+            if(!(businessName && shortName)) return res.status(400).json({error: "Business Name and Short Name required."});
+            const result = await sql`INSERT INTO locations (business_name, short_name, description, street_address, city, state, image_path, thumbnail_path)
+                VALUES (${businessName}, ${shortName}, ${description ?? null}, ${streetAddress ?? null}, ${city ?? null}, ${state ?? null}, ${imagePath ?? null}, ${thumbnailPath ?? null})
                 RETURNING *`;
             return res.status(201).json(humps.camelizeKeys(result[0]));
         } catch(error) {

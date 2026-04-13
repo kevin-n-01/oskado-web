@@ -14,16 +14,17 @@ interface OptionSelectionProps<T> {
     addNewPending?: boolean;
     onOpenDialog?: () => void;
     renderItem?: (item: T) => ReactNode;
+    loading?: boolean;
     hideAddNew?: boolean
     disabled?: boolean
 }
-const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handleChosenItem, handleAddNew, addNewPending, onOpenDialog, renderItem, hideAddNew, disabled}: OptionSelectionProps<T>) => {
+const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handleChosenItem, handleAddNew, addNewPending, onOpenDialog, renderItem, loading, hideAddNew, disabled}: OptionSelectionProps<T>) => {
     const [inputValue, setInputValue] = useState<string>('');
 
     return (
      <Combobox disabled={disabled} items={items} onValueChange={handleChosenItem} autoHighlight>
             <ComboboxInput 
-                placeholder={`Select a ${listName}...`}
+                placeholder={loading ? 'Loading...' : `Select a ${listName}...`}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={disabled}
             />

@@ -41,8 +41,8 @@ Full list also in [TODO.md](./TODO.md). Currently working on the inventory submi
 
 ### Inventory Submission Flow
 - [x] Create `inventory_websites` junction table in Neon (`inventory_sku` FK → inventory.sku, `website_id` FK → websites.id)
-- [ ] Create Postgres sequence `inventory_sku_seq` for SKU generation
-- [ ] Build `POST /api/inventory` endpoint — transaction: generate SKU → INSERT inventory → INSERT inventory_status_history (status: `Inventoried`) → return new SKU
+- [x] Create Postgres sequence `sku_number` for SKU generation (min 1 / max 1,000,000 / cache 5 / cycle)
+- [x] Build `POST /api/inventory` endpoint — transaction: generate SKU → INSERT inventory → INSERT inventory_status_history (status: `Inventoried`) → return new SKU
 - [ ] Build confirmation dialog in AddItem — triggered by Submit, shows summary of all selections, two actions: "Save for Later" and "Add More Details"
 - [ ] Wire up "Save for Later" — calls POST /api/inventory, resets form, closes dialog
 - [ ] Wire up "Add More Details" — calls POST /api/inventory, navigates to `/inventory/:sku/details`

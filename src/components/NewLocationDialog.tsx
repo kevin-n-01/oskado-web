@@ -1,16 +1,18 @@
-import { useState, type Dispatch, type ReactNode, type SetStateAction } from "react"
+import { useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog"
 import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "./ui/field";
 import { Input } from '@/components/ui/input';
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import type { Location, LocationFormData } from "@/types";
+import type { LocationForm } from "@/types";
+import { useUpload } from "@/hooks/useUploads";
+import { Loader2 } from "lucide-react";
 
 interface NewLocationDialogProps {
     open: boolean;
     onOpenChange: Dispatch<SetStateAction<boolean>>;
-    onLocationAdded: (data: Location) => Promise<void>;
+    onLocationAdded: (data: LocationForm) => Promise<void>;
 }
 
 
@@ -22,27 +24,38 @@ const US_STATES = ['NC', 'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', '
 
 export const NewLocationDialog = ({open, onOpenChange, onLocationAdded}: NewLocationDialogProps): ReactNode => {
 
-    const { register, handleSubmit, control } = useForm<LocationFormData>({
+    const { register, handleSubmit, control } = useForm<LocationForm>({
         defaultValues: {
             state: "NC"
         }
     });
 
-    const [imgPath, setImgPath] = useState<string | null>();
+   const fileInputRef = useRef<HTMLInputElement>(null);
+   const [imageFile, setImageFile] = useState<File | undefined>();
+   const { mutateAsync: upload, isPending: uploadIsPending } = useUpload();
 
-    const onSubmit: SubmitHandler<LocationFormData> = async (data: LocationFormData) => {
-        await onLocationAdded({...data, image_path: imgPath});
-        onOpenChange(false);
+    const onSubmit: SubmitHandler<LocationForm> = async (data: LocationForm) => {
+        try {
+            let imageUrl: string | undefined;
+            let thumbnailUrl: string | undefined;
+            if(imageFile) {
+                const result = await upload(imageFile);
+                imageUrl = result.data.imageUrl;
+                thumbnailUrl = result.data.thumbnailUrl;
+            }
+            await onLocationAdded({...data, imagePath: imageUrl, thumbnailPath: thumbnailUrl});
+            onOpenChange(false);
+        } catch (error) {
+            console.error(error);
+        }
+
     }
 
-    const handleUpload = async (): Promise<void> => {
-        const newPath = await window.api.files.selectImage();
-        setImgPath(newPath);
-        console.log(newPath);
-    }
-
-    const getFileName = (path: string): string | undefined => {
-        return path.split(/[\\/]/).pop()
+    const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+        const file = event.target.files?.[0];
+        if(!file) return; 
+        console.log(file.name);
+        setImageFile(file);
     }
 
     return (
@@ -56,21 +69,21 @@ export const NewLocationDialog = ({open, onOpenChange, onLocationAdded}: NewLoca
                         <FieldSet>
                             <FieldLegend>Location Information</FieldLegend>
                                 <Field>
-                                    <FieldLabel htmlFor="business_name">
+                                    <FieldLabel htmlFor="businessName">
                                         Store Name
                                     </FieldLabel>
-                                    <Input {...register('business_name')}
-                                        id="business_name"
+                                    <Input {...register('businessName')}
+                                        id="businessName"
                                         placeholder="ex: Goodwill"
                                         required
                                     />
                                 </Field>
                                 <Field>
-                                    <FieldLabel htmlFor="short_name">
+                                    <FieldLabel htmlFor="shortName">
                                         Short Name
                                     </FieldLabel>
                                     <Input
-                                        id="short_name" {...register("short_name")}
+                                        id="shortName" {...register("shortName")}
                                         placeholder="ex: GW"
                                         required
                                     />
@@ -90,7 +103,7 @@ export const NewLocationDialog = ({open, onOpenChange, onLocationAdded}: NewLoca
                             <FieldLegend>Location Address</FieldLegend>
                             <Field>
                                 <FieldLabel htmlFor="address">Street Address</FieldLabel>
-                                <Input {...register("street_address")}
+                                <Input {...register("streetAddress")}
                                     id="address"
                                 />
                             </Field>
@@ -124,14 +137,26 @@ export const NewLocationDialog = ({open, onOpenChange, onLocationAdded}: NewLoca
                                 </Field>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button className="w-1/3" type="button" variant="secondary" onClick={handleUpload}>
+                                <Button className="w-1/3" type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>
                                     Upload Image
                                 </Button>
-                                {imgPath && <span className="text-sm text-muted-foreground">{getFileName(imgPath)}</span>}
+                                <input
+                                    className="hidden"
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleUpload}
+                                />
+                                {imageFile && <span className="text-sm text-muted-foreground">{imageFile.name}</span>}
                             </div>
 
                             <Field orientation="horizontal">
-                                <Button type="submit">Submit</Button>
+                                <Button type="submit" disabled={uploadIsPending}>
+                                    {uploadIsPending ?
+                                        <><Loader2 className='animate-spin'/><span className='text-muted-foreground'>Saving...</span></> :
+                                        <span>Submit</span>
+                                    }
+                                </Button>
                             </Field>                                
                         </FieldSet>
                     </FieldGroup>

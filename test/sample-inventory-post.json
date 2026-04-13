@@ -1,0 +1,13 @@
+{
+    "short_description": "White Hanes T-Shirt",
+    "brand_id": 1,
+    "category_id": 1,
+    "sub_category_id": 1,
+    "location_id": 1,
+    "size_id": 1,
+    "purchase_price": 2.50,
+    "date_purchased": "2026-04-07",
+    "gender": "Unisex",
+    "is_child": false,
+    "color_ids": [1, 2]
+}

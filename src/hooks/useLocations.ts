@@ -1,4 +1,4 @@
-import { type Location } from "@/types";
+import { type Location, type LocationForm } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axios from "axios";
 
@@ -15,7 +15,7 @@ export const useLocations = () => {
 export const useAddLocation = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (location: Location) => {
+        mutationFn: async (location: LocationForm) => {
             const res = await axios.post('/api/locations', location)
             return res.data;
         },

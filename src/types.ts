@@ -9,16 +9,6 @@ export type StoreLocation = {
   image_path: string | null;
 };
 
-export type LocationFormData = {
-    business_name: string;
-    short_name: string;
-    description?: string;
-    street_address?: string;
-    city?: string;
-    state?: string;
-    image_path?: string | null;
-}
-
 export type ItemFormData = {
     brand_id: number;
     categoryId: number;
@@ -58,8 +48,7 @@ export type Size = {
     size: string;
 }
 
-export type Location = {
-    id: number;
+export type LocationForm = {
     businessName: string;
     shortName: string;
     description: string | undefined;
@@ -67,4 +56,33 @@ export type Location = {
     city: string | undefined;
     state: string | undefined;
     imagePath: string | undefined;
+    thumbnailPath: string | undefined;
+}
+
+export type Location = LocationForm & {
+    id: number;
+}
+
+
+type InventoryBase = {
+    shortDescription: string;
+    brandId: number | undefined;
+    categoryId: number;
+    subCategoryId: number | undefined ;
+    locationId: number;
+    sizeId: number | undefined;
+    purchasePrice: number;
+    datePurchased: Date;
+    gender: string;
+    isChild: boolean;
+    imagePath: string | undefined;
+    thumbnailPath: string | undefined
+}
+
+export type InventoryForm = InventoryBase & {
+    colorIds: number[];
+}
+
+export type Inventory = InventoryBase & {
+    sku: string;
 }

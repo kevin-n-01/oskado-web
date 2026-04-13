@@ -1,7 +1,7 @@
 
 import OptionSelector from "../components/OptionSelector";
-import { useState } from "react"
-import type { Color, ItemFormData, Location, Size } from "@/types";
+import { useRef, useState } from "react"
+import type { Color, InventoryForm, LocationForm} from "@/types";
 import { NewLocationDialog } from "@/components/NewLocationDialog";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon} from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,10 +22,14 @@ import { useColors } from "@/hooks/useColors";
 import ColorPicker from "@/components/ColorPicker";
 import { useAddLocation, useLocations } from "@/hooks/useLocations";
 import { useAddSize, useSizes } from "@/hooks/useSizes";
+import ConfirmItemDialog from "@/components/ConfirmItemDialog";
+import { cn } from "@/lib/utils";
 
 
 
 export const AddItem = () => {
+
+
 
     // Any needed form consts
     const genderMap = ["Female", "Male", "Unisex"];
@@ -83,6 +87,11 @@ export const AddItem = () => {
     const { data: categories } = useCategories();
     const [chosenCategoryId, setChosenCategoryId] = useState<number | null>();
 
+    const handleChosenCategory = (value: string) => {
+        setChosenCategoryId(Number(value));
+        setValue('categoryId', Number(value), {shouldValidate: true});
+    }
+
     const { data: subCategories, isLoading: isLoadingSubCategories } = useSubCategories(chosenCategoryId ?? null);
     const [chosenSubCategoryId, setChosenSubCategoryId] = useState<number>(0);
     const {mutateAsync: addNewSubcategory, isPending: addSubCategoryIsPending } = useAddSubcategory();
@@ -106,7 +115,7 @@ export const AddItem = () => {
     const [chosenLocationId, setChosenLocationId] = useState<number>(0);
     const {mutateAsync: addLocation } = useAddLocation();
 
-    const handleLocationAdded =  async (location: Location): Promise<void> => {
+    const handleLocationAdded =  async (location: LocationForm): Promise<void> => {
         const newLocation = await addLocation(location);
         setChosenLocationId(newLocation.id);
     }
@@ -117,25 +126,54 @@ export const AddItem = () => {
     }
 
     //Upload Image Handler
-    const [imgPath] = useState<string | null>();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [imageFile, setImageFile] = useState<File | undefined>();
 
-    const handleUpload = async (): Promise<void> => {
-        // TODO: Replace with new web based upload version
+    const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if(!file) return; 
+        console.log(file.name);
+        setImageFile(file);
+
     }
 
-    const getFileName = (path: string): string | undefined => {
-        return path.split(/[\\/]/).pop()
-    }
-
-        // ---- Initialize React Hook Table & Submit Function --------------------
-    const { register, handleSubmit, control } = useForm<ItemFormData>(
+        // ---- Initialize React Hook Table & Submit Functions --------------------
+    const { register, handleSubmit, control, setValue, formState: { errors }, reset } = useForm<InventoryForm>(
         {defaultValues: {
             gender: "Female",
         }}
     );
 
-    const onSubmit: SubmitHandler<ItemFormData> = async (data: ItemFormData) => {
-        console.log('submitted!', data);
+    const handleResetForm = () => {
+        reset();
+        setChosenBrandId(undefined);
+        setChosenSizeId(undefined);
+        setChosenColorIds(undefined);
+        setChosenCategoryId(null);
+        setChosenSubCategoryId(0);
+        setChosenLocationId(0);
+        setPurchaseDate(undefined);
+        setImageFile(undefined);
+    }
+
+    const [confirmDialogIsOpen, setConfirmDialogIsOpen] = useState<boolean>(false);
+    const [submittedInventory, setSubmittedInventory] = useState<InventoryForm | undefined>();
+
+    
+
+    const onSubmit: SubmitHandler<InventoryForm> = async (data: InventoryForm) => {
+        const inventoryData = {
+            ...data,
+            categoryId: chosenCategoryId ?? 0,
+            subCategoryId: chosenSubCategoryId ?? 0,
+            brandId: chosenBrandId ?? 0,
+            colorIds: chosenColorIds ?? [],
+            sizeId: chosenSizeId,
+            locationId: chosenLocationId,
+            datePurchased: purchaseDate ?? new Date()
+        };
+        setSubmittedInventory(inventoryData);
+        setConfirmDialogIsOpen(true);
     }
 
 
@@ -150,10 +188,10 @@ export const AddItem = () => {
                         <FieldSet>
                             <FieldLegend className='pb-2'>Product Information</FieldLegend>
                             <Field className="max-w-1/2">
-                                <FieldLabel htmlFor="short_description">Item Description</FieldLabel>
+                                <FieldLabel htmlFor="shortDescription">Item Description</FieldLabel>
                                 <FieldDescription>Add a short description that will serve as the product name</FieldDescription>
-                                <Textarea {...register('short_description')}
-                                    id="short_description"
+                                <Textarea {...register('shortDescription')}
+                                    id="shortDescription"
                                     placeholder="White Hanes T-Shirt"
                                     required
                                 />
@@ -164,13 +202,14 @@ export const AddItem = () => {
                                     <Controller 
                                         name='categoryId'
                                         control={control}
+                                        rules={{required: true}}
                                         render={({field}) => {
                                             return (
                                                 <Select value={field.value ? String(field.value) : ''} onValueChange={(value) => {
                                                     field.onChange(value);
-                                                    setChosenCategoryId(Number(value))}}
+                                                    handleChosenCategory(value)}}
                                                 >
-                                                    <SelectTrigger className='w-full'>
+                                                    <SelectTrigger className={cn('w-full', errors.categoryId && 'border-destructive')}>
                                                         <SelectValue placeholder='Select a category...' />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -197,6 +236,7 @@ export const AddItem = () => {
                                         handleChosenItem={handleChosenSubCategory}
                                         handleAddNew={handleAddNewSubCategory}
                                         addNewPending={addSubCategoryIsPending}
+                                        loading={isLoadingSubCategories}
                                         disabled={!chosenCategoryId || chosenCategoryId === 0 || isLoadingSubCategories}
                                     />
                                 </Field>
@@ -253,7 +293,7 @@ export const AddItem = () => {
                                     </Field>
                                     <div className='flex items-end h-full pb-2'>
                                         <Field orientation="horizontal">
-                                            <Checkbox id="isChild" defaultChecked {...register("is_child")} />
+                                            <Checkbox id="isChild" defaultChecked {...register("isChild")} />
                                             <FieldLabel htmlFor="isChild">Children's?</FieldLabel>
                                         </Field>
                                     </div>
@@ -283,7 +323,7 @@ export const AddItem = () => {
                                         <InputGroupAddon>
                                             <InputGroupText>$</InputGroupText>
                                         </InputGroupAddon>
-                                            <InputGroupInput {...register("purchase_price")}
+                                            <InputGroupInput {...register("purchasePrice")}
                                                 id="purchasePrice"
                                                 placeholder="0.00"
                                             />
@@ -317,16 +357,23 @@ export const AddItem = () => {
                         <FieldSet>
                             <FieldLegend className='pb-2'>Add Product Photo</FieldLegend>
                             <div className="flex items-center gap-2 max-w-1/2">
-                                <Button disabled className="w-1/3 max-w-36" type="button" variant="secondary" onClick={handleUpload}>Upload Image</Button>
-                                {imgPath && <span className="text-sm text-muted-foreground">{getFileName(imgPath)}</span>}
+                                <Button className="w-1/3 max-w-36" type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>Upload Image</Button>
+                                <input
+                                    className="hidden" 
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleUpload}
+                                />
+                                {imageFile && <span className="text-muted-foreground text-sm">{imageFile.name}</span>}
                             </div>
                         </FieldSet>
                         <FieldSet>
                             <FieldGroup className="flex flex-row justify-end gap-2">
                                 <Button variant="secondary">Cancel</Button>
-                                <Button>Submit</Button>
-                                <Button>Save for Later</Button>
-                                <Button>Add More Details</Button>
+                                <Button type="submit">
+                                        Submit
+                                </Button>
                             </FieldGroup>
                         </FieldSet>
                     </FieldGroup>
@@ -335,6 +382,9 @@ export const AddItem = () => {
         </Card>
          {/*Conditionally Render New Location Dialog*/}
          <NewLocationDialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen} onLocationAdded={handleLocationAdded}/>
+
+         {/* <ConfirmItemDialog open={confirmDialogIsOpen} inventory={submittedInventory!} /> */}
+         <ConfirmItemDialog open={confirmDialogIsOpen} onOpenChange={setConfirmDialogIsOpen} inventory={submittedInventory} image={imageFile} onSaveForLater={handleResetForm} />
     </div>
     )
 }
