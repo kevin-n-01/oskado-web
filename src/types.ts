@@ -48,6 +48,29 @@ export type Size = {
     size: string;
 }
 
+export type Fabric = {
+    id: number;
+    fabricName: string;
+    fabricShortName: string;
+}
+
+export type Season = {
+    id: number;
+    seasonName: string;
+    seasonShortName: string;
+}
+
+export type Tag = {
+    id: number;
+    tagText: string;
+}
+
+export type Website = {
+    id: number;
+    websiteName: string;
+    url: string;
+}
+
 export type LocationForm = {
     businessName: string;
     shortName: string;
@@ -87,6 +110,7 @@ export type Inventory = InventoryBase & {
     sku: string;
     brandName?: string | null;
     categoryName?: string;
+    subCategoryName?: string;
     businessName?: string;
     listingPrice?: number | null;
     condition?: string | null;

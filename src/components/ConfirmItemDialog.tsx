@@ -115,7 +115,7 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
                         variant="default"
                         disabled={!inventory || uploadIsPending || addInvIsPending}
                         onClick={() => handleAddMoreDetails(inventory!)}
-                    />
+                    >Add More Details</Button>
                 </div>
                 <Dialog open={addInvIsSuccess}>
                     <DialogContent className="w-64">

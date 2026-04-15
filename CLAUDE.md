@@ -53,6 +53,14 @@ Full list also in [TODO.md](./TODO.md). Currently working on the inventory submi
 - [ ] Build page UI with: condition (dropdown: Poor / Fair / Good / Like New / New With Tags), condition_description (textarea), box_id (integer input), listing_price (price input), seasons/tags/websites (multi-select using OptionSelector), fabrics (custom component — each row has a fabric dropdown + percentage input, with an "Add Fabric" button to append rows)
 - [ ] Wire up "Add More Details" button in ConfirmItemDialog — reuses handleAddItem to get SKU, then navigates to `/inventory/:sku/details` via useNavigate
 
+### Inventory Item Page — Visual Enhancements (deferred)
+Ideas for filling the right side of the item page layout:
+- **Status timeline** (preferred) — vertical timeline of status history with icon + date per step, replaces the Status History tab
+- **Color swatch strip** — large row of color swatches, visually striking and meaningful
+- **"At a glance" stat cards** — 2-3 small cards showing purchase price, listing price, days since inventoried
+- **Large decorative image treatment** — full-bleed or background image instead of constrained left-side image
+- **Subtle background gradient/texture** — visual weight on the right panel without adding content
+
 ### DB Notes
 - `inventory` table already has: `condition`, `condition_description`, `box_id`, `listing_price` columns — no migration needed
 - All junction tables exist: `inventory_fabrics`, `inventory_seasons`, `inventory_tags`, `inventory_websites`

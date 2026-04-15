@@ -21,6 +21,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 , i.short_description
                 , b.brand_name
                 , c.category_name
+                , sub.sub_category_name
                 , l.business_name
                 , i.purchase_price
                 , i.date_purchased
@@ -78,6 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 , i.short_description
                 , b.brand_name
                 , c.category_name
+                , sub.sub_category_name
                 , l.business_name
                 , i.purchase_price
                 , i.date_purchased
