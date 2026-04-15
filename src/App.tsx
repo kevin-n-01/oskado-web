@@ -9,6 +9,7 @@ import { History } from './pages/History'
 import { Analytics } from './pages/Analytics'
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { InventoryItem } from './pages/InventoryItem'
 
 const App = (): ReactNode => {
 
@@ -21,6 +22,7 @@ const App = (): ReactNode => {
                     <Route element={<Sidebar />}>
                         <Route path='/' element={<Dashboard />} />
                         <Route path='/catalog' element={<Catalog />} />
+                        <Route path='/catalog/:sku' element={ <InventoryItem /> } />
                         <Route path='/addItem' element={<AddItem />} />
                         <Route path='/transactions' element={<Transactions />} />
                         <Route path='/history' element={<History />} />

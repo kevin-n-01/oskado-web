@@ -14,8 +14,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } else if (req.method === 'POST') {
         try {
-            const brand_name = req.body.brand_name;
-            if(!req.body.brand_name) return res.status(400).json({error: "Brand Name must be provided"});
+            const brand_name = req.body.brandName;
+            if(!req.body.brandName) return res.status(400).json({error: "Brand Name must be provided"});
 
             const existing = await sql`SELECT id FROM brands WHERE LOWER(brand_name) = LOWER(${brand_name})`;
             if(existing.length > 0) return res.status(400).json({error: "Brand Name already exists"});

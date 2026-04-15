@@ -1,4 +1,4 @@
-import { type Brand, type Category, type Size, type SubCategory, type Color, type InventoryForm, type Location, type Inventory } from "@/types";
+import { type Brand, type Category, type Size, type SubCategory, type Color, type InventoryForm, type Location } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type Dispatch, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -7,6 +7,7 @@ import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import { useUpload } from "@/hooks/useUploads";
+import { useNavigate } from "react-router-dom";
 
 type ConfirmItemDialogProps = {
     open: boolean;
@@ -33,7 +34,9 @@ const SummaryRow = ({item, label}: SummaryRowProps) => {
 
 const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLater }: ConfirmItemDialogProps): ReactNode => {
 
-    const [submittedItem, setSubmittedItem] = useState<Inventory | undefined>();
+    const navigate = useNavigate();
+
+    const [submittedItem, setSubmittedItem] = useState<string | undefined>();
 
     const {mutateAsync: addInventory, isPending: addInvIsPending, isSuccess: addInvIsSuccess, reset, } = useAddInventory();
     const { mutateAsync: upload, isPending: uploadIsPending } = useUpload();
@@ -47,23 +50,29 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
     let sizeName = qc.getQueryData<Size[]>(['sizes'])?.find((s) => s.id === inventory?.sizeId)?.size || 'Unknown Size';
     sizeName = inventory?.isChild ? `Children's ${sizeName}` : `Adult's ${sizeName}`;
 
-    const handleAddItem = async (inventory: InventoryForm): Promise<void> => {
-        let imageUrl: string | undefined;
-        let thumbnailUrl: string | undefined;
+    const handleAddItem = async (inventory: InventoryForm): Promise<{sku: string}> => {
+        let imagePath: string | undefined;
+        let thumbnailPath: string | undefined;
         if(image) {
             const result = await upload(image);
-            imageUrl = result.data.imgPath;
-            thumbnailUrl = result.data.thumbnailPath;
+            imagePath = result.data.imgPath;
+            thumbnailPath = result.data.thumbnailPath;
         }
-        const newItem = await addInventory({...inventory, imagePath: imageUrl, thumbnailPath: thumbnailUrl});
-        setSubmittedItem(newItem);
+        const newItem: {sku: string} = await addInventory({...inventory, imagePath, thumbnailPath});
+        setSubmittedItem(newItem.sku);
+        return newItem;
     }
-
     const handleSubmitAnotherItem = () => {
         reset();
         onOpenChange(false);
         onSaveForLater?.();
     }
+
+    const handleAddMoreDetails = async (inventory: InventoryForm) => {
+        const newItem = await handleAddItem(inventory);
+        navigate(`/catalog/${newItem.sku}`, {state: {openDetails: true}});
+    }
+
     
 
     return (
@@ -101,12 +110,18 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
                            <span>Save For Later</span>
                         }
                     </Button>
+                    <Button
+                        type="button"
+                        variant="default"
+                        disabled={!inventory || uploadIsPending || addInvIsPending}
+                        onClick={() => handleAddMoreDetails(inventory!)}
+                    />
                 </div>
                 <Dialog open={addInvIsSuccess}>
                     <DialogContent className="w-64">
                         <DialogHeader>
                             <DialogTitle>Item Created!</DialogTitle>
-                            <DialogDescription>SKU: {submittedItem?.sku} </DialogDescription>
+                            <DialogDescription>SKU: {submittedItem} </DialogDescription>
                             <DialogDescription>Would you like to add another item?</DialogDescription>
                         </DialogHeader>
                         <div className="flex flex-row gap-2 justify-end">

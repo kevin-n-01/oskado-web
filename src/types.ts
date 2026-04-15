@@ -85,4 +85,18 @@ export type InventoryForm = InventoryBase & {
 
 export type Inventory = InventoryBase & {
     sku: string;
+    brandName?: string | null;
+    categoryName?: string;
+    businessName?: string;
+    listingPrice?: number | null;
+    condition?: string | null;
+    conditionDescription?: string | null;
+    size?: string | null;
+    boxId?: number | null;
+    status?: string;
+    colors?: { colorName: string; hexcode: string }[];
+    fabrics?: { fabricName: string; percentage: number }[];
+    seasons?: string[];
+    tags?: string[];
+    websites?: string[];
 }

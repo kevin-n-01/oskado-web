@@ -43,16 +43,19 @@ Full list also in [TODO.md](./TODO.md). Currently working on the inventory submi
 - [x] Create `inventory_websites` junction table in Neon (`inventory_sku` FK → inventory.sku, `website_id` FK → websites.id)
 - [x] Create Postgres sequence `sku_number` for SKU generation (min 1 / max 1,000,000 / cache 5 / cycle)
 - [x] Build `POST /api/inventory` endpoint — transaction: generate SKU → INSERT inventory → INSERT inventory_status_history (status: `Inventoried`) → return new SKU
-- [ ] Build confirmation dialog in AddItem — triggered by Submit, shows summary of all selections, two actions: "Save for Later" and "Add More Details"
-- [ ] Wire up "Save for Later" — calls POST /api/inventory, resets form, closes dialog
+- [x] Build confirmation dialog in AddItem — triggered by Submit, shows summary of all selections, two actions: "Save for Later" and "Add More Details"
+- [x] Wire up "Save for Later" — calls POST /api/inventory, resets form, closes dialog
 - [ ] Wire up "Add More Details" — calls POST /api/inventory, navigates to `/inventory/:sku/details`
 
 ### Add More Details Page (`/inventory/:sku/details`)
-- [ ] Build API endpoints + hooks for: fabrics, seasons, tags, websites, boxes
-- [ ] Build PATCH/PUT endpoint to update inventory record with detail fields
-- [ ] Build POST endpoints for junction tables: inventory_fabrics, inventory_seasons, inventory_tags, inventory_websites
-- [ ] Build page UI with: condition (dropdown), condition_description (textarea), box (selector), fabrics, seasons, tags, websites (all multi-select)
+- [ ] Build GET + POST API endpoints + hooks for: fabrics, seasons, tags, websites (same pattern as brands/sizes)
+- [ ] Build `PATCH /api/inventory/:sku` — updates condition, condition_description, box_id, listing_price + inserts into all 4 junction tables in a single transaction
+- [ ] Build page UI with: condition (dropdown: Poor / Fair / Good / Like New / New With Tags), condition_description (textarea), box_id (integer input), listing_price (price input), seasons/tags/websites (multi-select using OptionSelector), fabrics (custom component — each row has a fabric dropdown + percentage input, with an "Add Fabric" button to append rows)
+- [ ] Wire up "Add More Details" button in ConfirmItemDialog — reuses handleAddItem to get SKU, then navigates to `/inventory/:sku/details` via useNavigate
 
-### Notes
+### DB Notes
+- `inventory` table already has: `condition`, `condition_description`, `box_id`, `listing_price` columns — no migration needed
+- All junction tables exist: `inventory_fabrics`, `inventory_seasons`, `inventory_tags`, `inventory_websites`
+- `box_id` is an integer — no separate boxes table, just store the box number directly
 - `measurements` table exists in DB — confirm if in scope for detail page
 - Colors already handled in first form via color swatch picker

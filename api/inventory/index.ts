@@ -68,8 +68,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                                 ${datePurchased},
                                 ${gender},
                                 ${isChild ? 1 : 0},
-                                ${imagePath},
-                                ${thumbnailPath}
+                                ${imagePath ?? null},
+                                ${thumbnailPath ?? null}
                             FROM new_sku
                             RETURNING sku
                         )

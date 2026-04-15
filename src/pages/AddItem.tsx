@@ -11,7 +11,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon} from "lucide-react";
+import { CalendarIcon, X} from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -293,7 +293,7 @@ export const AddItem = () => {
                                     </Field>
                                     <div className='flex items-end h-full pb-2'>
                                         <Field orientation="horizontal">
-                                            <Checkbox id="isChild" defaultChecked {...register("isChild")} />
+                                            <Checkbox id="isChild" {...register("isChild")} />
                                             <FieldLabel htmlFor="isChild">Children's?</FieldLabel>
                                         </Field>
                                     </div>
@@ -365,7 +365,17 @@ export const AddItem = () => {
                                     accept="image/*"
                                     onChange={handleUpload}
                                 />
-                                {imageFile && <span className="text-muted-foreground text-sm">{imageFile.name}</span>}
+                                {imageFile && 
+                                <>
+                                    <span className="text-muted-foreground text-sm">{imageFile.name}</span>
+                                    <Button variant="ghost" onClick={ ()=> {
+                                        setImageFile(undefined);
+                                        if(fileInputRef.current) fileInputRef.current.value = '';
+                                    }}>
+                                        {<X />}
+                                    </Button>
+                                </>
+                                }
                             </div>
                         </FieldSet>
                         <FieldSet>
