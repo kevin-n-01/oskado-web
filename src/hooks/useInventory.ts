@@ -1,5 +1,5 @@
 import type { Inventory, InventoryForm } from "@/types"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axios from "axios"
 
 
@@ -13,6 +13,24 @@ export const useAddInventory = () => {
             return result.data;
         },
         // TODO: Add invalidation for inventories once added for refetch
+    })
+}
+
+export const useUpdateInventory = (sku: string) => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: Partial<Inventory> & {
+            fabrics?: { fabricId: number; percentage: number }[];
+            seasonIds?: number[];
+            tagIds?: number[];
+            websiteIds?: number[];
+        }) => {
+            const res = await axios.patch(`/api/inventory/${sku}`, data);
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['inventory', sku] });
+        }
     })
 }
 

@@ -97,5 +97,96 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } catch (error) {
             handleServerError(error, res);
         }
+    } else if (req.method === 'PATCH') {
+        try {
+            const sku = req.query.sku as string;
+            if (!sku) return res.status(400).json({ error: 'No inventory SKU provided' });
+
+            const {
+                shortDescription,
+                brandId,
+                categoryId,
+                subCategoryId,
+                locationId,
+                sizeId,
+                purchasePrice,
+                datePurchased,
+                gender,
+                isChild,
+                imagePath,
+                thumbnailPath,
+                listingPrice,
+                condition,
+                conditionDescription,
+                boxId,
+                fabrics,
+                seasonIds,
+                tagIds,
+                websiteIds,
+            } = req.body;
+
+            await sql.begin(async (sqlTx) => {
+                const tx = sqlTx as unknown as typeof sql;
+
+                await tx`
+                    UPDATE inventory SET
+                        short_description = COALESCE(${shortDescription ?? null}, short_description),
+                        brand_id = COALESCE(${brandId ?? null}, brand_id),
+                        category_id = COALESCE(${categoryId ?? null}, category_id),
+                        sub_category_id = COALESCE(${subCategoryId ?? null}, sub_category_id),
+                        location_id = COALESCE(${locationId ?? null}, location_id),
+                        size_id = COALESCE(${sizeId ?? null}, size_id),
+                        purchase_price = COALESCE(${purchasePrice ?? null}, purchase_price),
+                        date_purchased = COALESCE(${datePurchased ?? null}, date_purchased),
+                        gender = COALESCE(${gender ?? null}, gender),
+                        is_child = COALESCE(${isChild ?? null}, is_child),
+                        image_path = COALESCE(${imagePath ?? null}, image_path),
+                        thumbnail_path = COALESCE(${thumbnailPath ?? null}, thumbnail_path),
+                        listing_price = COALESCE(${listingPrice ?? null}, listing_price),
+                        condition = COALESCE(${condition ?? null}, condition),
+                        condition_description = COALESCE(${conditionDescription ?? null}, condition_description),
+                        box_id = COALESCE(${boxId ?? null}, box_id)
+                    WHERE sku = ${sku}
+                `;
+
+                if (fabrics?.length) {
+                    const fabricIds = fabrics.map((f: { fabricId: number; percentage: number }) => f.fabricId);
+                    const percentages = fabrics.map((f: { fabricId: number; percentage: number }) => f.percentage);
+                    await tx`DELETE FROM inventory_fabrics WHERE inventory_sku = ${sku}`;
+                    await tx`
+                        INSERT INTO inventory_fabrics (inventory_sku, fabric_id, percentage)
+                        SELECT ${sku}, unnest(${tx.array(fabricIds)}::int[]), unnest(${tx.array(percentages)}::real[])
+                    `;
+                }
+
+                if (seasonIds?.length) {
+                    await tx`DELETE FROM inventory_seasons WHERE inventory_sku = ${sku}`;
+                    await tx`
+                        INSERT INTO inventory_seasons (inventory_sku, season_id)
+                        SELECT ${sku}, unnest(${tx.array(seasonIds)}::int[])
+                    `;
+                }
+
+                if (tagIds?.length) {
+                    await tx`DELETE FROM inventory_tags WHERE inventory_sku = ${sku}`;
+                    await tx`
+                        INSERT INTO inventory_tags (inventory_sku, tag_id)
+                        SELECT ${sku}, unnest(${tx.array(tagIds)}::int[])
+                    `;
+                }
+
+                if (websiteIds?.length) {
+                    await tx`DELETE FROM inventory_websites WHERE inventory_sku = ${sku}`;
+                    await tx`
+                        INSERT INTO inventory_websites (inventory_sku, website_id)
+                        SELECT ${sku}, unnest(${tx.array(websiteIds)}::int[])
+                    `;
+                }
+            });
+
+            return res.status(200).json({ sku });
+        } catch (error) {
+            handleServerError(error, res);
+        }
     }
 }
