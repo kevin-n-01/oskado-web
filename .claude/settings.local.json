@@ -9,5 +9,9 @@
       "mcp__Neon__get_database_tables",
       "mcp__Neon__run_sql"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ],
+  "enableAllProjectMcpServers": true
 }
