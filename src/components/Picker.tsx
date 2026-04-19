@@ -1,5 +1,7 @@
-import React, { useState, type ReactNode } from "react"
+import React, { Fragment, useState, type ReactNode } from "react"
 import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue, useComboboxAnchor } from "./ui/combobox"
+import { Button } from "./ui/button";
+import { Loader2, PlusSquare } from "lucide-react";
 
 type PickerProps<T> = {
     items: T[] | undefined;
@@ -12,11 +14,14 @@ type PickerProps<T> = {
     renderChip: (item: T) => ReactNode;
     renderListItem: (item: T, isSelected?: boolean) => ReactNode;
     container?: HTMLElement | null;
+    handleAddNew?: (inputValue: string) => Promise<void>;
+    addNewPending?: boolean;
 }
 
-const Picker = <T,>({items, values, placeholder, onValueChange, itemToStringLabel, itemToStringValue, isItemEqualToValue, renderChip, renderListItem, container}: PickerProps<T>): React.ReactNode => {
+const Picker = <T,>({items, values, placeholder, onValueChange, itemToStringLabel, itemToStringValue, isItemEqualToValue, renderChip, renderListItem, container, handleAddNew, addNewPending}: PickerProps<T>): React.ReactNode => {
     const anchor = useComboboxAnchor();
     const [selectedValues, setSelectedValues] = useState<T[]>(values ?? []);
+    const [inputValue, setInputValue] = useState<string>('');
     return (
         <Combobox
             multiple
@@ -39,10 +44,25 @@ const Picker = <T,>({items, values, placeholder, onValueChange, itemToStringLabe
                         </ComboboxChip>
                     ))}
                 </ComboboxValue>
-                <ComboboxChipsInput placeholder={placeholder} />
+                <ComboboxChipsInput 
+                    placeholder={placeholder}
+                    {...(handleAddNew && {onChange: (e) => setInputValue(e.target.value)})}
+                />
             </ComboboxChips>
             <ComboboxContent anchor={anchor} className='w-80' container={container}>
-                <ComboboxEmpty>No Additonal Values</ComboboxEmpty>
+                <ComboboxEmpty>
+                    {handleAddNew ? (
+                        <Button size="sm" type="button" disabled={addNewPending} className='w-full justify-start' variant="ghost" onClick={() => handleAddNew?.(inputValue)}>
+                            {addNewPending ?
+                                <Fragment><Loader2 className='animate-spin' />{`Adding ${inputValue}...`}</Fragment> :
+                                <Fragment><PlusSquare />{`Add ${inputValue}`}</Fragment>
+                            }
+                        </Button>
+                    ):
+                    <span className='text-sm text-muted-foreground'>No Additional Values</span>
+                    }
+
+                </ComboboxEmpty>
                 <ComboboxList className='grid grid-cols-3'>
                    {(item: T) => {
                     const isSelected = selectedValues?.some((v) => isItemEqualToValue(v, item));

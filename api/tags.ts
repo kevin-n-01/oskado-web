@@ -11,5 +11,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         } catch (error) {
             handleServerError(error, res);
         }
+    } else if (req.method === 'POST') {
+        try {
+            const tagText = req.body.tagText
+            if(!tagText) return res.status(400).json({error: "No Tag Name Provided"});
+
+            const result = await sql`
+                INSERT INTO tags (tag_text) VALUES (${tagText}) RETURNING *
+            `
+            return res.status(201).json(humps.camelizeKeys(result));
+        } catch(e) {
+            handleServerError(e, res);
+        }
     }
 }

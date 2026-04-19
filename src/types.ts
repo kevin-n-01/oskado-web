@@ -65,6 +65,11 @@ export type Tag = {
     tagText: string;
 }
 
+export type Measurement = {
+    id: number;
+    measurementName: string;
+}
+
 export type Website = {
     id: number;
     websiteName: string;
