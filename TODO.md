@@ -44,6 +44,25 @@
   - PATCH/PUT endpoint to update inventory record with detail fields
   - POST endpoints for junction tables: inventory_fabrics, inventory_seasons, inventory_tags, inventory_websites
 
+## TableSelector Component (in progress)
+
+`TableSelector` is a reusable dynamic table input where columns are defined by a schema and rows are added dynamically. Currently being wired into `EditItemDetails.tsx` for fabrics. File: `src/components/TableSelector.tsx`.
+
+### Remaining work
+
+1. **Accept `columns` and `optionsMap` as props** — remove hardcoded `fabricColumns` from inside the component. `optionsMap` is `Record<string, DropDownOption[]>` keyed by column key.
+2. **Remove `options` from the dropdown `ColumnDef` variant** — `renderCell` should look up options via `optionsMap[col.key]` instead.
+3. **Add `onChange: (rows: RowData[]) => void` prop** — call it in a `useEffect` whenever `rowList` changes so the parent can receive the current row data.
+4. **Wire into `EditItemDetails`** — call `useFabrics()`, define `fabricColumns` (key: `"fabric"`, type: `"dropdown"` and key: `"percentage"`, type: `"number"`), pass `optionsMap={{ fabric: fabricData }}`, and use RHF's `setValue('fabrics', rows)` in the `onChange` callback.
+
+### Current component state
+- `ColumnDef` discriminated union: `text | number | dropdown`
+- `RowData` is `Record<string, string | number>`
+- `handleAddRow` initializes a new empty row from the column schema
+- `handleCellChange(rowIndex, key, value)` updates the correct cell via functional `setRowList`
+- `renderCell(col, onChange)` switches on `col.type` and calls `onChange(col.key, value)` — `rowIndex` is captured via closure at the call site
+- `useFabrics` hook already exists and is ready to use
+
 ## Notes
 - `measurements` table exists in DB — confirm if in scope for detail page
 - Colors are already handled in the first form via the color swatch picker
