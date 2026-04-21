@@ -3,7 +3,7 @@ import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, 
 import { Loader2, PlusSquare } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
-interface OptionSelectionProps<T> {
+export type OptionSelectionProps<T> = {
     listName: string,
     items: T[] | undefined;
     labelKey: keyof T;
@@ -16,9 +16,10 @@ interface OptionSelectionProps<T> {
     renderItem?: (item: T) => ReactNode;
     loading?: boolean;
     hideAddNew?: boolean
-    disabled?: boolean
+    disabled?: boolean;
+    container?: HTMLElement
 }
-const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handleChosenItem, handleAddNew, addNewPending, onOpenDialog, renderItem, loading, hideAddNew, disabled}: OptionSelectionProps<T>) => {
+const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handleChosenItem, handleAddNew, addNewPending, onOpenDialog, renderItem, loading, hideAddNew, disabled, container}: OptionSelectionProps<T>) => {
     const [inputValue, setInputValue] = useState<string>('');
 
     return (
@@ -28,7 +29,7 @@ const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handl
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={disabled}
             />
-            <ComboboxContent >
+            <ComboboxContent container={container} >
                 {!usesDialog && !hideAddNew && (
                 <ComboboxEmpty>
                     <Button size="default" disabled={addNewPending} className="w-full justify-start" variant="ghost" onClick={() => handleAddNew?.(inputValue)}>

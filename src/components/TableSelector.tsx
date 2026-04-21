@@ -1,26 +1,27 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Button } from "./ui/button";
-import { Plus } from "lucide-react";
-import React, { useState } from "react";
+import { Plus, X } from "lucide-react";
+import React, { useRef, useState } from "react";
 import { Input } from "./ui/input";
 
-type DropDownOption = {
+export type DropDownOption = {
     id: number;
     value: string;
 }
 export type ColumnDef =
     | { key: string; label: string; type: "text" }
     | { key: string; label: string; type: "number"; min?: number; max?: number }
-    | { key: string; label: string; type: "dropdown"; options: DropDownOption[] }
+    | { key: string; label: string; type: "dropdown" }
+    | { key: string; label: string; type: "combobox"; renderCombobox: (onChange: (key: string, value: string) => void ) => React.ReactNode }
 
-type RowData = Record<string, string | number>;
+type RowData = Record<string, string | number> & {_id: number};
 
 const Selector = ({options, onChange}: {options: DropDownOption[]; onChange: (value: string) => void}): React.ReactNode => {
     return (
         <Select onValueChange={(val) => onChange(val)}>
             <SelectTrigger>
-                <SelectValue placeholder="Select a Fabric" />
+                <SelectValue placeholder="Select an Item" />
             </SelectTrigger>
             <SelectContent>
                 <SelectGroup>
@@ -40,16 +41,23 @@ type TableSelectorProps = {
 
 export const TableSelector = ({columns, optionsMap}: TableSelectorProps) => {
 
-    
-
-    const [ rowList, setRowList ] = useState<RowData[]>([]);
+    const [ rowList, setRowList ] = useState<RowData[]>(() => {
+        const firstRow = { _id: 0 } as RowData;
+        columns.forEach((column) => { firstRow[column.key] = "";})
+        return [firstRow];
+    });
+    const nextId = useRef(0);
 
     const handleAddRow = () => {
-        const newRow: RowData = {};
+        const newRow: RowData = {_id: nextId.current++};
         columns.forEach((column) => {
             newRow[column.key] = "";
         })
         setRowList((prev) => [...prev, newRow]);
+    }
+
+    const handleRemoveRow = (index: number) => {
+        setRowList((prev) => prev.filter((_, i) => i !== index));
     }
 
     const handleCellChange = (rowIndex: number, key: string, value: string) => {
@@ -60,43 +68,50 @@ export const TableSelector = ({columns, optionsMap}: TableSelectorProps) => {
 
     const renderCell = (
         col: ColumnDef, 
-        onChange: (key: string, value: string) => void
+        onChange: (key: string, value: string) => void,
+        options: DropDownOption[]
     ) => {
+        console.log(col.type);
         switch(col.type) {
             case "dropdown":
-                return <Selector options={col.options} onChange={(val) => onChange(col.key, val)} />
+                return <Selector options={options} onChange={(val) => onChange(col.key, val)} />
             case "number":
-                return <Input type="number" min={col.min} max={col.max} onChange={(e) => onChange(col.key, e.target.value)} />
+                return <Input className="max-w-24" type="number" min={col.min} max={col.max} onChange={(e) => onChange(col.key, e.target.value)} />
             case "text":
                 return <Input type="text" onChange={(e) => onChange(col.key, e.target.value)} />
+            case "combobox":
+                return col.renderCombobox((key, value) => onChange(key, value))
         }
     }
 
 
 
     return (
-        <div>
-            <Table>
+        <div className="flex flex-col w-fit">
+            <Table className='mb-2 w-fit'>
                 <TableHeader>
                     <TableRow>
-                        {fabricColumns.map((column) => (
+                        {columns.map((column) => (
                             <TableHead key={column.key}>{column.label}</TableHead>
                         ))}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {rowList.map((_, i) => (
-                        <TableRow key={i}>
-                            {fabricColumns.map((column) => (
+                    {rowList.map((row, i) => (
+                        <TableRow key={row._id}>
+                            {columns.map((column) => (
                                 <TableCell key={column.key}>
-                                    {renderCell(column,(key, value) => handleCellChange(i, key, value))}
+                                    {renderCell(column,(key, value) => handleCellChange(i, key, value), optionsMap?.[column.key] ?? [])}
                                 </TableCell>
                             ))}
+                            <TableCell><Button type="button" size="icon" variant="ghost" onClick={() => handleRemoveRow(i)}><X /></Button></TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
-            <Button type="button" variant="secondary" onClick={() => handleAddRow()}><Plus /></Button>
+            <div className="flex justify-end mr-0">
+               <Button className='gap-1' type="button" size="sm" variant="secondary" onClick={() => handleAddRow()}><Plus /><span>Add Row</span></Button>
+            </div>
         </div>
         
     )
