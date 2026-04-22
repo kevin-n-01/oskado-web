@@ -9,4 +9,7 @@ export const STATUS_COLORS: Record<string, string> = {
     "Completed": "bg-emerald-500",
     "Returned": "bg-orange-500",
     "Discontinued": "bg-red-500",
-}
+};
+
+export const CONDITION_LIST = ["Poor", "Fair", "Good", "Like New", "New With Tags"] as const;
+export type ConditionList = (typeof CONDITION_LIST)[number];

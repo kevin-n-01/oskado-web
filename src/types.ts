@@ -93,22 +93,29 @@ export type Location = LocationForm & {
 
 
 type InventoryBase = {
-    shortDescription: string;
-    brandId: number | undefined;
-    categoryId: number;
-    subCategoryId: number | undefined ;
-    locationId: number;
-    sizeId: number | undefined;
-    purchasePrice: number;
-    datePurchased: Date;
-    gender: string;
-    isChild: boolean;
-    imagePath: string | undefined;
-    thumbnailPath: string | undefined
+    shortDescription?: string;
+    brandId?: number | undefined;
+    categoryId?: number;
+    subCategoryId?: number | undefined ;
+    locationId?: number;
+    sizeId?: number | undefined;
+    purchasePrice?: number;
+    datePurchased?: Date;
+    gender?: string;
+    isChild?: boolean;
+    imagePath?: string | undefined;
+    thumbnailPath?: string | undefined
 }
 
 export type InventoryForm = InventoryBase & {
-    colorIds: number[];
+    colorIds?: number[];
+    fabrics?: { fabricId: number; percentage: number; }[];
+    measurements?: { measurementId: number; value: number; unit: string; }[];
+    seasonIds?: number[];
+    tagIds?: number[];
+    websiteIds?: number[];
+    condition?: string;
+    conditionDescription?: string;
 }
 
 export type Inventory = InventoryBase & {

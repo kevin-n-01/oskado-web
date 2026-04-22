@@ -45,7 +45,7 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
     const categoryName = qc.getQueryData<Category[]>(['categories'])?.find((c) => c.id === inventory?.categoryId)?.categoryName ?? "Unknown Category";
     const subCategoryName = qc.getQueryData<SubCategory[]>(['subCategories'])?.find((s) => s.id === inventory?.subCategoryId)?.subCategoryName ?? "Unknown Sub-Category";
     const brandName = qc.getQueryData<Brand[]>(['brands'])?.find((b) => b.id === inventory?.brandId)?.brandName ?? "Unknown Brand";
-    const colors = qc.getQueryData<Color[]>(['colors'])?.filter((c) => inventory?.colorIds.includes(c.id))?.map((c) => c.colorName)?.toSorted(( a , b) => a.localeCompare(b)).join(', ');
+    const colors = qc.getQueryData<Color[]>(['colors'])?.filter((c) => inventory?.colorIds?.includes(c.id))?.map((c) => c.colorName)?.toSorted(( a , b) => a.localeCompare(b)).join(', ');
     const locationName = qc.getQueryData<Location[]>(['locations'])?.find((c) => inventory?.locationId === c.id)?.businessName ?? "Unknown Location";
     let sizeName = qc.getQueryData<Size[]>(['sizes'])?.find((s) => s.id === inventory?.sizeId)?.size || 'Unknown Size';
     sizeName = inventory?.isChild ? `Children's ${sizeName}` : `Adult's ${sizeName}`;

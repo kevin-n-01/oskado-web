@@ -1,7 +1,7 @@
 import React, { useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader } from "./ui/dialog";
-import { type Inventory, type Measurement, type Season, type Tag } from "@/types";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { type Inventory, type InventoryForm, type Measurement, type Season, type Tag } from "@/types";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import Picker from "./Picker";
 import { useSeasons } from "@/hooks/useSeasons";
@@ -10,11 +10,14 @@ import { useAddTag, useTags } from "@/hooks/useTags";
 import Hashtag from "./Hashtag";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-import {TableSelector, type ColumnDef, type DropDownOption} from "./TableSelector";
+import {type RowData, TableSelector, type ColumnDef, type DropDownOption} from "./TableSelector";
 import { useFabrics } from "@/hooks/useFabrics";
 import { useAddMeasurement, useMeasurements } from "@/hooks/useMeasurements";
-import { Key } from "lucide-react";
 import OptionSelector from "./OptionSelector";
+import { CONDITION_LIST, type ConditionList } from "@/lib/constants";
+import { Button } from "./ui/button";
+import { useUpdateInventory } from "@/hooks/useInventory";
+import { Loader2 } from "lucide-react";
 
 
 type EditItemDetailsProps = {
@@ -22,9 +25,6 @@ type EditItemDetailsProps = {
     onOpenChange: Dispatch<SetStateAction<boolean>>;
     item: Inventory;
 }
-
-const CONDITION_LIST = ["Poor", "Fair", "Good", "Like New", "New With Tags"];
-
 
 type MeasurementComboboxProps = {
     measurements: Measurement[] | undefined;
@@ -49,11 +49,21 @@ const MeasurementCombobox = ({measurements, addMeasurement, addMeasurementIsPend
     }
 
 export const EditItemDetails = ({open, onOpenChange, item}: EditItemDetailsProps): ReactNode => {
+
+    const {mutateAsync: updateInventory, isPending: updateInventoryPending } = useUpdateInventory(item.sku);
     
     // React Hook Table
-    const {handleSubmit, register, control} = useForm<Inventory>();
+    const {handleSubmit, register, control} = useForm<InventoryForm>();
 
-    const onSubmit: SubmitHandler<Inventory> = async (data: Inventory) => {
+    const onSubmit: SubmitHandler<InventoryForm> = async (data: InventoryForm) => {
+        const payload = {
+            ...data,
+            measurements: measurementRows.map((row) => ({ measurementId: Number(row.measurement), value: Number(row.value), unit: String(row.unit) })),
+            fabrics: fabricRows.map((row) => ({ fabricId: Number(row.fabric), percentage: Number(row.percentage) })),
+            seasonIds: selectedSeasons.map((season) => season.id),
+            tagIds: selectedTags.map((tag) => tag.id),
+        }
+        await updateInventory(payload);
 
     }
 
@@ -74,10 +84,8 @@ export const EditItemDetails = ({open, onOpenChange, item}: EditItemDetailsProps
         await addTag(tagText);
     }
 
-    // Conditition
-    const [chosenCondition, setChosenCondition] = useState<string>('');
-
     // Fabrics
+    const [ fabricRows, setFabricRows ] = useState<RowData[]>([]);
     const {data: fabrics} = useFabrics();
     const fabricOptions: Record<string, DropDownOption[]> = {};
     fabricOptions["fabric"] = fabrics?.map((fabric): DropDownOption => ({id: fabric.id, value: fabric.fabricName})) ?? [];
@@ -87,6 +95,8 @@ export const EditItemDetails = ({open, onOpenChange, item}: EditItemDetailsProps
     ]
 
     //Measurements
+    const [ measurementRows, setMeasurementRows ] = useState<RowData[]>([]);
+    console.log(measurementRows);
     const { data: measurements } = useMeasurements();
     const {mutateAsync: addMeasurement, isPending: addMeasurementIsPending} = useAddMeasurement();
     const measurementOptions: Record<string, DropDownOption[]> = {};
@@ -103,10 +113,9 @@ export const EditItemDetails = ({open, onOpenChange, item}: EditItemDetailsProps
     
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-
             <DialogContent className="max-w-2xl max-h-[80vh]">
+                <DialogTitle><DialogHeader className='text-xl px-0'>Edit Item Details</DialogHeader></DialogTitle>
                 <div ref={containerRef} />
-                <DialogHeader className="text-xl">Edit Item Details</DialogHeader>
                 <form className="overflow-y-auto overflow-x-hidden max-h-[calc(80vh-8rem)] pr-4" id='edit-item-details' onSubmit={handleSubmit(onSubmit)}>
                         <FieldGroup>
                             <FieldSet>
@@ -160,7 +169,6 @@ export const EditItemDetails = ({open, onOpenChange, item}: EditItemDetailsProps
                                                     onValueChange={(value) => {
                                                         field.onChange(value);
                                                         console.log("Chosen Condition ", value)
-                                                        setChosenCondition(value);
                                                     }}
                                                 >
                                                     <SelectTrigger className="w-full max-w-64">
@@ -169,7 +177,7 @@ export const EditItemDetails = ({open, onOpenChange, item}: EditItemDetailsProps
                                                     <SelectContent>
                                                         <SelectGroup>
                                                             <SelectLabel>Conditions</SelectLabel>
-                                                            {CONDITION_LIST.map((c) => (
+                                                            {CONDITION_LIST.map((c: ConditionList) => (
                                                                 <SelectItem key={c} id={c} value={c}>{c}</SelectItem>
                                                             ))}
                                                         </SelectGroup>
@@ -192,14 +200,20 @@ export const EditItemDetails = ({open, onOpenChange, item}: EditItemDetailsProps
                             <FieldSet>
                                 <Field className='w-fit'>
                                     <FieldLabel>Fabric Selection</FieldLabel>
-                                    <TableSelector columns={fabricColumns} optionsMap={fabricOptions} />
+                                    <TableSelector columns={fabricColumns} optionsMap={fabricOptions} onRowsChange={setFabricRows} />
                                 </Field>
                                 <Field className='w-fit'>
                                     <FieldLabel>Measurements</FieldLabel>
-                                    <TableSelector columns={measurementColumns} optionsMap={measurementOptions} />
+                                    <TableSelector columns={measurementColumns} optionsMap={measurementOptions} onRowsChange={setMeasurementRows}/>
                                 </Field>
                             </FieldSet>
                         </FieldGroup>
+                        <Button type="submit" disabled={updateInventoryPending}>
+                            {updateInventoryPending ? 
+                                <><Loader2 className='animate-spin' /><span>Submitting</span></> :
+                                <span>Update Item</span>
+                            }
+                        </Button>
                 </form>
                 
                 

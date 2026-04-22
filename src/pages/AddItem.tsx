@@ -29,8 +29,6 @@ import { cn } from "@/lib/utils";
 
 export const AddItem = () => {
 
-
-
     // Any needed form consts
     const genderMap = ["Female", "Male", "Unisex"];
 

@@ -15,7 +15,7 @@ export type ColumnDef =
     | { key: string; label: string; type: "dropdown" }
     | { key: string; label: string; type: "combobox"; renderCombobox: (onChange: (key: string, value: string) => void ) => React.ReactNode }
 
-type RowData = Record<string, string | number> & {_id: number};
+export type RowData = Record<string, string | number> & {_id: number};
 
 const Selector = ({options, onChange}: {options: DropDownOption[]; onChange: (value: string) => void}): React.ReactNode => {
     return (
@@ -36,34 +36,41 @@ const Selector = ({options, onChange}: {options: DropDownOption[]; onChange: (va
 
 type TableSelectorProps = {
     columns: ColumnDef[];
-    optionsMap?: Record<string, DropDownOption[]>
+    optionsMap?: Record<string, DropDownOption[]>;
+    onRowsChange: (rows: RowData[]) => void;
 }
 
-export const TableSelector = ({columns, optionsMap}: TableSelectorProps) => {
+export const TableSelector = ({columns, optionsMap, onRowsChange}: TableSelectorProps) => {
 
     const [ rowList, setRowList ] = useState<RowData[]>(() => {
         const firstRow = { _id: 0 } as RowData;
         columns.forEach((column) => { firstRow[column.key] = "";})
         return [firstRow];
     });
-    const nextId = useRef(0);
+    const nextId = useRef(1);
 
     const handleAddRow = () => {
         const newRow: RowData = {_id: nextId.current++};
         columns.forEach((column) => {
             newRow[column.key] = "";
         })
-        setRowList((prev) => [...prev, newRow]);
+        const next = [...rowList, newRow]
+        setRowList(next);
+        onRowsChange(next)
     }
 
     const handleRemoveRow = (index: number) => {
-        setRowList((prev) => prev.filter((_, i) => i !== index));
+        const next = rowList.filter((_, i) => i !== index);
+        setRowList(next);
+        onRowsChange(next);
     }
 
     const handleCellChange = (rowIndex: number, key: string, value: string) => {
-        setRowList((prev) => prev.map((row, i) =>
+        const next = rowList.map((row, i) =>
             i === rowIndex ? {...row, [key]: value } : row
-        ))
+        );
+        setRowList(next);
+        onRowsChange(next);
     }
 
     const renderCell = (
@@ -71,7 +78,6 @@ export const TableSelector = ({columns, optionsMap}: TableSelectorProps) => {
         onChange: (key: string, value: string) => void,
         options: DropDownOption[]
     ) => {
-        console.log(col.type);
         switch(col.type) {
             case "dropdown":
                 return <Selector options={options} onChange={(val) => onChange(col.key, val)} />
