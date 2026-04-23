@@ -69,7 +69,7 @@ export const InventoryItem = (): React.ReactNode => {
                 </CardContent>
             </Card>
             {/* Edit Item Dialog */}
-            <EditItemDetails open={showEditItemDetails} onOpenChange={setShowItemDetails} item={item} />
+            {showEditItemDetails && item && <EditItemDetails open={showEditItemDetails} onOpenChange={setShowItemDetails} item={item} />}
         </div>
        
     )
