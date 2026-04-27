@@ -70,8 +70,8 @@ export const InventoryItem = (): React.ReactNode => {
 
                     </div>
                     <div className="pt-4">
-                        <Tabs defaultValue="description" className="w-96">
-                            <TabsList variant="line">
+                        <Tabs defaultValue="description">
+                            <TabsList variant="line" className="w-96">
                                 <TabsTrigger value="description">Item Description</TabsTrigger>
                                 <TabsTrigger value="purchase">Purchase Info</TabsTrigger>
                                 <TabsTrigger value="status_history">Status History</TabsTrigger>

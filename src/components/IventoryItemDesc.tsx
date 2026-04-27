@@ -77,6 +77,12 @@ const InventoryItemDesc = ({ item }: InventoryItemProps): React.ReactNode => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
+                        {item?.measurements?.map((m, i) => (
+                            <TableRow key={i}>
+                                <TableCell>{m.measurementName}</TableCell>
+                                <TableCell>{`${m.measurementValue} ${m.measurementUnit}`}</TableCell>
+                            </TableRow>
+                        ))}
                     </TableBody>
                 </Table>
             </div>

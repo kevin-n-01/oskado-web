@@ -1,3 +1,5 @@
+import type { MeasurementUnits } from "./lib/constants";
+
 export type StoreLocation = {
   id: number;
   business_name: string;
@@ -68,6 +70,8 @@ export type Tag = {
 export type Measurement = {
     id: number;
     measurementName: string;
+    measurementValue: number;
+    measurementUnit: MeasurementUnits;
 }
 
 export type Website = {
@@ -111,7 +115,7 @@ type InventoryBase = {
 export type InventoryForm = InventoryBase & {
     colorIds?: number[];
     fabrics?: { fabricId: number; percentage: number; }[];
-    measurements?: { measurementId: number; value: number; unit: string; }[];
+    measurements?: { measurementId: number; measurementValue: number; measurementUnit: string; }[];
     seasonIds?: number[];
     tagIds?: number[];
     websiteIds?: number[];
@@ -134,6 +138,7 @@ export type Inventory = InventoryBase & {
     status?: string;
     colors?: { colorName: string; hexcode: string }[];
     fabrics?: { fabricName: string; percentage: number }[];
+    measurements?: { measurementName: string; measurementUnit: MeasurementUnits; measurementValue: number; }[];
     seasons?: string[];
     tags?: string[];
     websites?: string[];

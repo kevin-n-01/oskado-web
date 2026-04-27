@@ -4,7 +4,40 @@ import humps from 'humps';
 import { handleServerError } from '../../server-utils';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    if (req.method === 'POST') {
+    if(req.method === 'GET') {
+        try {
+            const items = await sql`
+                WITH mostRecentStatus AS (
+                    SELECT i.inventory_sku, i.status
+                    FROM inventory_status_history i
+                    INNER JOIN (
+                        SELECT inventory_sku, MAX(changed_at) AS changed_at FROM inventory_status_history GROUP BY inventory_sku
+                    ) m ON i.inventory_sku = m.inventory_sku AND i.changed_at = m.changed_at
+                )
+                SELECT
+                    i.sku
+                    , i.short_description
+                    , i.gender
+                    , i.is_child
+                    , i.thumbnail_path
+                    , b.brand_name
+                    , c.category_name
+                    , sub.sub_category_name
+                    , s.size
+                    , mrs.status
+                FROM inventory i
+                LEFT JOIN brands b ON b.id = i.brand_id
+                LEFT JOIN categories c ON c.id = i.category_id
+                LEFT JOIN sub_categories sub ON sub.id = i.sub_category_id
+                LEFT JOIN sizes s ON s.id = i.size_id
+                LEFT JOIN mostRecentStatus mrs ON mrs.inventory_sku = i.sku
+            `;
+            return res.status(200).json(humps.camelizeKeys(items));
+        } catch (error) {
+            handleServerError(error, res);
+        }
+    }
+     else if (req.method === 'POST') {
         try {
             const {
                 shortDescription,

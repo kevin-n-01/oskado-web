@@ -18,7 +18,7 @@ import { CONDITION_LIST, type ConditionList } from "@/lib/constants";
 import { Button } from "./ui/button";
 import { useUpdateInventory } from "@/hooks/useInventory";
 import { Loader2 } from "lucide-react";
-import { EditPrimaryDetails } from "./EditPrimaryDetails";
+// import { EditPrimaryDetails } from "./EditPrimaryDetails";
 
 type EditItemDetailsProps = {
     open: boolean;
@@ -58,12 +58,12 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
 
     const { handleSubmit, register, control } = useForm<InventoryForm>({
         defaultValues: {
-            shortDescription: item?.shortDescription,
-            gender: item?.gender,
-            isChild: item?.isChild,
-            purchasePrice: item?.purchasePrice,
-            condition: item?.condition ?? undefined,
-            conditionDescription: item?.conditionDescription ?? undefined,
+            // shortDescription: item?.shortDescription,
+            // gender: item?.gender,
+            // isChild: item?.isChild,
+            // purchasePrice: item?.purchasePrice,
+            // condition: item?.condition ?? undefined,
+            // conditionDescription: item?.conditionDescription ?? undefined,
         }
     });
 
@@ -108,24 +108,24 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
     ]
 
     // Primary detail state — produced by EditPrimaryDetails, consumed in onSubmit
-    const [chosenBrandId, setChosenBrandId] = useState<number | undefined>(item?.brandId);
-    const [chosenSizeId, setChosenSizeId] = useState<number | undefined>(item?.sizeId);
-    const [chosenColorIds, setChosenColorIds] = useState<number[]>([]);
-    const [chosenSubCategoryId, setChosenSubCategoryId] = useState<number>(item?.subCategoryId ?? 0);
-    const [chosenLocationId, setChosenLocationId] = useState<number>(item?.locationId ?? 0);
-    const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(item?.datePurchased);
-    const [imageFile, setImageFile] = useState<File | undefined>();
+    // const [chosenBrandId, setChosenBrandId] = useState<number | undefined>(item?.brandId);
+    // const [chosenSizeId, setChosenSizeId] = useState<number | undefined>(item?.sizeId);
+    // const [chosenColorIds, setChosenColorIds] = useState<number[]>([]);
+    // const [chosenSubCategoryId, setChosenSubCategoryId] = useState<number>(item?.subCategoryId ?? 0);
+    // const [chosenLocationId, setChosenLocationId] = useState<number>(item?.locationId ?? 0);
+    // const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(item?.datePurchased);
+    // const [imageFile, setImageFile] = useState<File | undefined>();
 
     const onSubmit: SubmitHandler<InventoryForm> = async (data: InventoryForm) => {
         const payload = {
             ...data,
-            brandId: chosenBrandId,
-            sizeId: chosenSizeId,
-            colorIds: chosenColorIds,
-            subCategoryId: chosenSubCategoryId,
-            locationId: chosenLocationId,
-            datePurchased: purchaseDate,
-            measurements: measurementRows.map((row) => ({ measurementId: Number(row.measurement), value: Number(row.value), unit: String(row.unit) })),
+            // brandId: chosenBrandId,
+            // sizeId: chosenSizeId,
+            // colorIds: chosenColorIds,
+            // subCategoryId: chosenSubCategoryId,
+            // locationId: chosenLocationId,
+            // datePurchased: purchaseDate,
+            measurements: measurementRows.map((row) => ({ measurementId: Number(row.measurement), measurementValue: Number(row.value), measurementUnit: String(row.unit) })),
             fabrics: fabricRows.flatMap((row) => {
                 const fabricId = fabrics?.find((f) => f.fabricName === row.fabric)?.id;
                 if (!fabricId) return [];
@@ -226,7 +226,7 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
                             </Field>
                         </FieldSet>
                         <FieldSeparator />
-                        <EditPrimaryDetails
+                        {/*<EditPrimaryDetails
                             register={register}
                             control={control}
                             item={item}
@@ -239,7 +239,7 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
                             onImageChange={setImageFile}
                             purchaseDate={purchaseDate}
                             imageFile={imageFile}
-                        />
+                        /> */}
                     </FieldGroup>
                     <Button type="submit" disabled={updateInventoryPending} className="mt-4">
                         {updateInventoryPending ?

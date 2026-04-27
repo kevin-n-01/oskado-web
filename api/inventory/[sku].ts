@@ -37,6 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 , mrs.status
                 , JSON_AGG(DISTINCT jsonb_build_object('colorName', col.color_name, 'hexcode', col.hex_code)) FILTER (WHERE col.color_name IS NOT NULL) AS colors
                 , JSON_AGG(DISTINCT jsonb_build_object('fabricName', fab.fabric_name, 'percentage', i_f.percentage)) FILTER (WHERE fab.fabric_name IS NOT NULL) as fabrics
+                , JSON_AGG(DISTINCT jsonb_build_object('measurementName', mea.measurement_name, 'measurementValue', im.measurement_value, 'measurementUnit', im.measurement_unit)) FILTER (WHERE mea.measurement_name IS NOT NULL) as measurements
                 , ARRAY_REMOVE(ARRAY_AGG(DISTINCT seasons.season_name), NULL) AS seasons
                 , ARRAY_REMOVE(ARRAY_AGG(DISTINCT t.tag_text), NULL) AS tags
                 , ARRAY_REMOVE(ARRAY_AGG(DISTINCT web.website_name), NULL) AS websites
@@ -73,6 +74,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     ON iw.inventory_sku = i.sku
                 LEFT JOIN websites web
                     ON web.id = iw.website_id
+                LEFT JOIN inventory_measurements im
+                    ON im.inventory_sku = i.sku
+                LEFT JOIN measurements mea
+                    on mea.id = im.measurement_dim_id
                 WHERE sku = ${sku}
                 GROUP BY
                 i.sku
@@ -121,6 +126,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 boxId,
                 fabrics,
                 seasonIds,
+                measurements,
                 tagIds,
                 websiteIds,
                 status,
@@ -184,6 +190,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         INSERT INTO inventory_websites (inventory_sku, website_id)
                         SELECT ${sku}, unnest(${tx.array(websiteIds)}::int[])
                     `;
+                }
+                if(measurements?.length) {
+                    const measurementIds = measurements.map((m: {measurementId: number; measurementValue: number; measurementUnit: string}) => m.measurementId);
+                    const measurementValues = measurements.map((m: {measurementId: number; measurementValue: number; measurementUnit: string}) => m.measurementValue);
+                    const measurementUnit = measurements.map((m: {measurementId: number; measurementValue: number; measurementUnit: string}) => m.measurementUnit);
+                    await tx`DELETE FROM inventory_measurements WHERE inventory_sku = ${sku}`;
+                    await tx`
+                        INSERT INTO inventory_measurements (inventory_sku, measurement_dim_id, measurement_value, measurement_unit)
+                        SELECT ${sku}, unnest(${tx.array(measurementIds)}::int[]), unnest(${tx.array(measurementValues)}::real[]), unnest(${tx.array(measurementUnit)}::text[])
+                    `
                 }
                 if(status && notes) {
                     await tx`INSERT INTO inventory_status_history (inventory_sku, status, notes, changed_at) VALUES (${sku}, ${status}, ${notes}, ${statusDate ?? new Date()})`;

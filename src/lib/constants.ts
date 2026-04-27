@@ -16,3 +16,6 @@ export type StatusColor = (typeof STATUS_COLORS)[Status];
 
 export const CONDITION_LIST = ["Poor", "Fair", "Good", "Like New", "New With Tags"] as const;
 export type ConditionList = (typeof CONDITION_LIST)[number];
+
+export const MEASUREMENT_UNITS = ["in", "cm"] as const;
+export type MeasurementUnits = (typeof MEASUREMENT_UNITS)[number];

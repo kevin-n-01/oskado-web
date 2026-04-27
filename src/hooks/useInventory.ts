@@ -20,7 +20,7 @@ export const useUpdateInventory = (sku: string) => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: Partial<InventoryForm> & {
-            measurements?: { measurementId: number; value: number; unit: string }[];
+            measurements?: { measurementId: number; measurementValue: number; measurementUnit: string }[];
             fabrics?: { fabricId: number; percentage: number }[];
             seasonIds?: number[];
             tagIds?: number[];
@@ -33,6 +33,16 @@ export const useUpdateInventory = (sku: string) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['inventory', sku] });
+        }
+    })
+}
+
+export const useInventory = () => {
+    return useQuery<Inventory[]>({
+        queryKey: ['inventories'],
+        queryFn: async() => {
+            const res = await axios.get('/api/inventory');
+            return res.data;
         }
     })
 }

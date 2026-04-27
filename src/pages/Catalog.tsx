@@ -1,6 +1,23 @@
+import InventoryTile from "@/components/InventoryTile";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useInventory } from "@/hooks/useInventory"
 
 export const Catalog = () => {
+
+    const { data: inventory } = useInventory();
+
     return (
-        <h1>Catalog</h1>
+        <Card className='w-full h-full p-7'>
+            <CardHeader>
+                <CardTitle className='text-2xl text-accent-foreground'>Product Catalog</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className='grid grid-cols-4 gap-4'>
+                    {inventory?.map((inventory) => (
+                        <InventoryTile key={inventory.sku} item={inventory} />
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
     )
 }
