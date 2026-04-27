@@ -123,6 +123,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 seasonIds,
                 tagIds,
                 websiteIds,
+                status,
+                notes,
+                statusDate
             } = req.body;
 
             await sql.begin(async (sqlTx) => {
@@ -181,6 +184,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         INSERT INTO inventory_websites (inventory_sku, website_id)
                         SELECT ${sku}, unnest(${tx.array(websiteIds)}::int[])
                     `;
+                }
+                if(status && notes) {
+                    await tx`INSERT INTO inventory_status_history (inventory_sku, status, notes, changed_at) VALUES (${sku}, ${status}, ${notes}, ${statusDate ?? new Date()})`;
                 }
             });
 

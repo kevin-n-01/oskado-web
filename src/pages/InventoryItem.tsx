@@ -1,12 +1,14 @@
 import { EditItemDetails } from "@/components/EditItemDetails";
 import ItemBreadCrumb from "@/components/ItemBreadCrumb";
+import InventoryItemDesc from "@/components/IventoryItemDesc";
+import MarkItemListed from "@/components/MarkItemListed";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useInventoryItem } from "@/hooks/useInventory";
-import { STATUS_COLORS } from "@/lib/constants";
+import { STATUS_COLORS, type Status, type StatusColor } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useParams } from "react-router-dom"
@@ -25,7 +27,16 @@ export const InventoryItem = (): React.ReactNode => {
     const sku = params.sku;
     const { data: item } = useInventoryItem(sku!)
 
+    const statusColor: StatusColor = item?.status && item.status in STATUS_COLORS ?
+        STATUS_COLORS[item.status as Status] : 
+        "bg-gray-500";
+
     const [showEditItemDetails, setShowItemDetails] = useState<boolean>(false);
+    const [ showMarkItemListed, setShowMarkItemListed ] = useState<boolean>(false);
+
+    const showMarkItemListedButton = item?.status === "Inventoried" as Status;
+    const showMarkItemSoldButton = item?.status === "Listed" as Status;
+
     return (
         <div className='w-full h-full'>
             <Card className='w-full h-full p-7'>
@@ -33,7 +44,7 @@ export const InventoryItem = (): React.ReactNode => {
                 <CardHeader>
                     <div className="flex flex-row gap-6 items-center">
                         <CardTitle className='text-2xl text-accent-foreground'>{item?.shortDescription}</CardTitle>
-                        <Badge className={cn(STATUS_COLORS[item?.status ?? ''])}>{item?.status}</Badge>
+                        <Badge className={cn(statusColor)}>{item?.status}</Badge>
                     </div>
                     <CardDescription>{[item?.sku, item?.boxId ? `Box ${item.boxId}` : null].filter(Boolean).join(' | ')}</CardDescription>
                 </CardHeader>
@@ -44,7 +55,8 @@ export const InventoryItem = (): React.ReactNode => {
                         <div className="flex flex-col gap-10">
                             <div className="flex flex-col gap-2 transition-color duration:200">
                                 <Button onClick={() => setShowItemDetails(true)}>Edit Details</Button>
-                                <Button>Mark Item as Listed</Button>
+                               {showMarkItemListedButton && <Button onClick={() => setShowMarkItemListed(true)}>Mark Item as Listed</Button>}
+                               {showMarkItemSoldButton && <Button>Mark Item as Sold</Button>}
                             </div>
                             <div className="flex flex-col gap-2 flex-1">
                                 <SummaryRow property={item?.categoryName} label="Category" />
@@ -64,12 +76,14 @@ export const InventoryItem = (): React.ReactNode => {
                                 <TabsTrigger value="purchase">Purchase Info</TabsTrigger>
                                 <TabsTrigger value="status_history">Status History</TabsTrigger>
                             </TabsList>
+                            <TabsContent value="description"><InventoryItemDesc item={item} /></TabsContent>
                         </Tabs>
                     </div>
                 </CardContent>
             </Card>
             {/* Edit Item Dialog */}
             {showEditItemDetails && item && <EditItemDetails open={showEditItemDetails} onOpenChange={setShowItemDetails} item={item} />}
+            {showMarkItemListed && item && <MarkItemListed open={showMarkItemListed} onOpenChange={setShowMarkItemListed} item={item} />}
         </div>
        
     )

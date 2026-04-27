@@ -16,9 +16,10 @@ type PickerProps<T> = {
     container?: HTMLElement | null;
     handleAddNew?: (inputValue: string) => Promise<void>;
     addNewPending?: boolean;
+    listClassName?: string;
 }
 
-const Picker = <T,>({items, values, placeholder, onValueChange, itemToStringLabel, itemToStringValue, isItemEqualToValue, renderChip, renderListItem, container, handleAddNew, addNewPending}: PickerProps<T>): React.ReactNode => {
+const Picker = <T,>({items, values, placeholder, onValueChange, itemToStringLabel, itemToStringValue, isItemEqualToValue, renderChip, renderListItem, container, handleAddNew, addNewPending, listClassName}: PickerProps<T>): React.ReactNode => {
     const anchor = useComboboxAnchor();
     const [selectedValues, setSelectedValues] = useState<T[]>(values ?? []);
     const [inputValue, setInputValue] = useState<string>('');
@@ -63,7 +64,7 @@ const Picker = <T,>({items, values, placeholder, onValueChange, itemToStringLabe
                     }
 
                 </ComboboxEmpty>
-                <ComboboxList className='grid grid-cols-3'>
+                <ComboboxList className={listClassName ?? 'grid grid-cols-3'}>
                    {(item: T) => {
                     const isSelected = selectedValues?.some((v) => isItemEqualToValue(v, item));
                     return (

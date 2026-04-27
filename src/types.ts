@@ -104,7 +104,8 @@ type InventoryBase = {
     gender?: string;
     isChild?: boolean;
     imagePath?: string | undefined;
-    thumbnailPath?: string | undefined
+    thumbnailPath?: string | undefined;
+    boxId?: number | null;
 }
 
 export type InventoryForm = InventoryBase & {
@@ -116,6 +117,9 @@ export type InventoryForm = InventoryBase & {
     websiteIds?: number[];
     condition?: string;
     conditionDescription?: string;
+
+    listingPrice?: number | null;
+    listingDate?: Date | null;
 }
 
 export type Inventory = InventoryBase & {
@@ -124,11 +128,9 @@ export type Inventory = InventoryBase & {
     categoryName?: string;
     subCategoryName?: string;
     businessName?: string;
-    listingPrice?: number | null;
     condition?: string | null;
     conditionDescription?: string | null;
     size?: string | null;
-    boxId?: number | null;
     status?: string;
     colors?: { colorName: string; hexcode: string }[];
     fabrics?: { fabricName: string; percentage: number }[];

@@ -25,6 +25,8 @@ export const useUpdateInventory = (sku: string) => {
             seasonIds?: number[];
             tagIds?: number[];
             websiteIds?: number[];
+            status?: string;
+            notes?: string;
         }) => {
             const res = await axios.patch(`/api/inventory/${sku}`, data);
             return res.data;

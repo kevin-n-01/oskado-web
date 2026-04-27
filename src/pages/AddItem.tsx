@@ -344,7 +344,7 @@ export const AddItem = () => {
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar mode="single" selected={purchaseDate} onSelect={setPurchaseDate} />
+                                            <Calendar mode="single" captionLayout="dropdown" selected={purchaseDate} onSelect={setPurchaseDate} />
                                         </PopoverContent>
                                     </Popover>
                                 </Field>
