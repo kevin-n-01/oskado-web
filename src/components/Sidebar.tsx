@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom"
 import { NavItem } from "./NavItem"
 import { BanknoteArrowUp, BookImage, ChartNoAxesCombinedIcon, LayoutDashboard, Sheet, SquarePlus } from "lucide-react"
+import { SignInButton } from "@clerk/react"
 
 export const Sidebar = () => {
     return (
@@ -15,6 +16,7 @@ export const Sidebar = () => {
                     <NavItem to="/history" label="History" icon={Sheet} />
                     <NavItem to="/analytics" label="Analytics" icon={ChartNoAxesCombinedIcon} />
                 </div>
+                <div><SignInButton>Sign In</SignInButton></div>
             </div>
             <div className="ml-64 flex-1 p-6 bg-muted">
                 <Outlet />

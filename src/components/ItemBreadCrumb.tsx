@@ -1,5 +1,6 @@
 import type { Inventory } from "@/types"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "./ui/breadcrumb"
+import { Link } from "react-router-dom";
 
 
 const ItemBreadCrumb = ({ item }: {item: Inventory | undefined}) => {
@@ -7,7 +8,9 @@ const ItemBreadCrumb = ({ item }: {item: Inventory | undefined}) => {
         <Breadcrumb>
             <BreadcrumbList>
             <BreadcrumbItem>
-                <BreadcrumbLink href="#">Catalog</BreadcrumbLink>
+                <BreadcrumbLink asChild>
+                    <Link to="/catalog">Catalog</Link>
+                </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

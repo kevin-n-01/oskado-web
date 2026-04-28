@@ -5,15 +5,22 @@ import { STATUS_COLORS, type StatusColor } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 type InventoryTileProps = {
-    item: Inventory
+    item: Inventory;
+    onClick: () => void
 }
 
-const InventoryTile = ({item}: InventoryTileProps): React.ReactNode => {
+const InventoryTile = ({item, onClick}: InventoryTileProps): React.ReactNode => {
     const statusColor: StatusColor = item?.status && item.status in STATUS_COLORS ?
             STATUS_COLORS[item.status as keyof typeof STATUS_COLORS] : 
             "bg-gray-500";
     return (
-        <div className='relative flex flex-row gap-3 rounded-lg border-2 p-4 transition-all duration-200 shadow hover:scale-105 hover:border-accent-foreground hover:cursor-pointer'>
+        <div 
+            onClick={onClick}
+            tabIndex={0}
+            role="button"
+            onKeyDown={(e) => {if (e.key === 'Enter' || e.key === ' ') onClick(); }}
+            className='relative flex flex-row gap-3 rounded-lg border-2 p-4 transition-all duration-200 shadow hover:scale-105 hover:bg-gray-700 hover:cursor-pointer'
+        >
             <img className="rounded-sm max-w-1/3 self-center" src={item?.thumbnailPath} />
             <Badge className={cn(statusColor, 'absolute top-2 right-2')}>{item.status}</Badge>
             <div className="flex flex-col pr-16">
