@@ -4,7 +4,6 @@ import { useRef, useState } from "react"
 import type { Color, InventoryForm, LocationForm} from "@/types";
 import { NewLocationDialog } from "@/components/NewLocationDialog";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
@@ -176,12 +175,11 @@ export const AddItem = () => {
 
 
     return (
-    <div>
-        <Card className="w-3/4 bg-center p-6 m-5 mx-auto overflow-visible">
-            <CardHeader className="text-2xl text-accent-foreground">Add New Item</CardHeader>
-
-            <CardContent>
-                <form id='add-new-item-form' onSubmit={handleSubmit(onSubmit)}>
+    <div className="w-full mx-auto px-6">
+        <div className="sticky top-0 pt-6 bg-card z-10">
+            <h1 className="text-2xl text-accent-foreground mb-4">Add New Item</h1>
+        </div>
+        <form id='add-new-item-form' onSubmit={handleSubmit(onSubmit)}>
                     <FieldGroup>
                         <FieldSet>
                             <FieldLegend className='pb-2'>Product Information</FieldLegend>
@@ -385,9 +383,7 @@ export const AddItem = () => {
                             </FieldGroup>
                         </FieldSet>
                     </FieldGroup>
-                </form>
-            </CardContent>
-        </Card>
+        </form>
          {/*Conditionally Render New Location Dialog*/}
          <NewLocationDialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen} onLocationAdded={handleLocationAdded}/>
 

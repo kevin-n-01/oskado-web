@@ -4,7 +4,7 @@ import InventoryItemDesc from "@/components/IventoryItemDesc";
 import MarkItemListed from "@/components/MarkItemListed";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useInventoryItem } from "@/hooks/useInventory";
@@ -38,17 +38,18 @@ export const InventoryItem = (): React.ReactNode => {
     const showMarkItemSoldButton = item?.status === "Listed" as Status;
 
     return (
-        <div className='w-full h-full'>
-            <Card className='w-full h-full p-7'>
+        <div className='w-full px-7'>
+            <div className='sticky top-0 pt-7 bg-card z-10'>
                 <ItemBreadCrumb item={item} />
-                <CardHeader>
+                <div className="pt-4 pb-2">
                     <div className="flex flex-row gap-6 items-center">
-                        <CardTitle className='text-2xl text-accent-foreground'>{item?.shortDescription}</CardTitle>
+                        <h1 className='text-2xl text-accent-foreground'>{item?.shortDescription}</h1>
                         <Badge className={cn(statusColor)}>{item?.status}</Badge>
                     </div>
                     <CardDescription>{[item?.sku, item?.boxId ? `Box ${item.boxId}` : null].filter(Boolean).join(' | ')}</CardDescription>
-                </CardHeader>
-                <CardContent>
+                </div>
+            </div>
+                <div>
                     <div className="flex flex-row gap-6">
                         <img className="rounded-2xl max-w-1/3" src={item?.imagePath ?? undefined} />
                         <Separator orientation="vertical" />
@@ -67,7 +68,6 @@ export const InventoryItem = (): React.ReactNode => {
                                 <SummaryRow property={item?.condition ?? "Unknown"} label="Condition" />
                             </div>
                         </div>
-
                     </div>
                     <div className="pt-4">
                         <Tabs defaultValue="description">
@@ -79,12 +79,10 @@ export const InventoryItem = (): React.ReactNode => {
                             <TabsContent value="description"><InventoryItemDesc item={item} /></TabsContent>
                         </Tabs>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
             {/* Edit Item Dialog */}
             {showEditItemDetails && item && <EditItemDetails open={showEditItemDetails} onOpenChange={setShowItemDetails} item={item} />}
             {showMarkItemListed && item && <MarkItemListed open={showMarkItemListed} onOpenChange={setShowMarkItemListed} item={item} />}
         </div>
-       
     )
 }

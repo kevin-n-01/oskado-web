@@ -1,5 +1,4 @@
 import InventoryTile from "@/components/InventoryTile";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useInventory } from "@/hooks/useInventory"
 import { useNavigate } from "react-router-dom";
 
@@ -10,17 +9,15 @@ export const Catalog = () => {
     const navigate = useNavigate();
 
     return (
-        <Card className='w-full h-full p-7'>
-            <CardHeader>
-                <CardTitle className='text-2xl text-accent-foreground'>Product Catalog</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className='grid grid-cols-4 gap-4'>
-                    {inventory?.map((inventory) => (
-                        <InventoryTile key={inventory.sku} item={inventory} onClick={() => navigate(`/catalog/${inventory.sku}`)} />
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
+        <div className='w-full px-7'>
+            <div className='sticky top-0 pt-7 bg-card z-10'>
+                <h1 className='text-2xl text-accent-foreground mb-4'>Product Catalog</h1>
+            </div>
+            <div className='grid grid-cols-4 gap-4'>
+                {inventory?.map((inventory) => (
+                    <InventoryTile key={inventory.sku} item={inventory} onClick={() => navigate(`/catalog/${inventory.sku}`)} />
+                ))}
+            </div>
+        </div>
     )
 }
