@@ -3,7 +3,7 @@ import { Dashboard } from './pages/Dashboard'
 import type { ReactNode } from 'react'
 import { AddItem } from './pages/AddItem'
 import { Catalog } from './pages/Catalog'
-import { Sidebar } from './components/Sidebar'
+import { AppLayout } from './components/AppLayout'
 import { Transactions } from './pages/Transactions'
 import { History } from './pages/History'
 import { Analytics } from './pages/Analytics'
@@ -19,7 +19,7 @@ const App = (): ReactNode => {
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <Routes>
-                    <Route element={<Sidebar />}>
+                    <Route element={<AppLayout />}>
                         <Route path='/' element={<Dashboard />} />
                         <Route path='/catalog' element={<Catalog />} />
                         <Route path='/catalog/:sku' element={ <InventoryItem /> } />
