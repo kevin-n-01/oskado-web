@@ -2,9 +2,12 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import sql from "../../../src/lib/db";
 import humps from 'humps';
 import { handleServerError } from "../../../server-utils";
+import { requireAuth } from "../../../server/auth";
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    if(await requireAuth(req, res)) return;
+    
     if(req.method === 'GET') {
         try {
             const inventorySku = req.query.sku;

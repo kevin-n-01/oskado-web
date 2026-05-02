@@ -3,7 +3,7 @@ import sql from '../src/lib/db';
 import humps from 'humps';
 import { handleServerError } from '../server-utils';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function tagsHandler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'GET') {
         try {
             const tags = await sql`SELECT * FROM tags ORDER BY tag_text`;
@@ -13,15 +13,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     } else if (req.method === 'POST') {
         try {
-            const tagText = req.body.tagText
-            if(!tagText) return res.status(400).json({error: "No Tag Name Provided"});
-
-            const result = await sql`
-                INSERT INTO tags (tag_text) VALUES (${tagText}) RETURNING *
-            `
+            const tagText = req.body.tagText;
+            if (!tagText) return res.status(400).json({ error: "No Tag Name Provided" });
+            const result = await sql`INSERT INTO tags (tag_text) VALUES (${tagText}) RETURNING *`;
             return res.status(201).json(humps.camelizeKeys(result));
-        } catch(e) {
-            handleServerError(e, res);
+        } catch (error) {
+            handleServerError(error, res);
         }
     }
 }
