@@ -1,7 +1,7 @@
 
 import OptionSelector from "../components/OptionSelector";
 import { useRef, useState } from "react"
-import type { Color, InventoryForm, LocationForm} from "@/types";
+import type { Brand, Color, Location, Size, SubCategory, InventoryForm} from "@/types";
 import { NewLocationDialog } from "@/components/NewLocationDialog";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
@@ -28,148 +28,90 @@ import { cn } from "@/lib/utils";
 
 export const AddItem = () => {
 
-    // Any needed form consts
     const genderMap = ["Female", "Male", "Unisex"];
 
-    // Input fields not managed by RHT
-    const [purchaseDate, setPurchaseDate] = useState<Date | undefined>();
+    const { register, handleSubmit, control, setValue, watch, formState: { errors }, reset } = useForm<InventoryForm>(
+        { defaultValues: { gender: "Female" } }
+    );
+
+    const categoryId = watch('categoryId');
+    const datePurchased = watch('datePurchased');
 
     // ---- Brands ------------------------------
 
-    const {data: brands } = useBrands();
-    const {mutateAsync: addBrand, isPending: addBrandisPending } = useAddBrand();
-    const [chosenBrandId, setChosenBrandId] = useState<number>();
-
-
-    const handleChosenBrand = (brand: string | null): void => {
-        const chosenId = brands?.find((b) => b.brandName=== brand)?.id;
-        setChosenBrandId(chosenId);
-        console.log("Chosen brand: ", chosenId, brand); 
-    }
+    const { data: brands } = useBrands();
+    const { mutateAsync: addBrand, isPending: addBrandisPending } = useAddBrand();
 
     const handleAddNewBrand = async (brand: string): Promise<void> => {
         const newBrand = await addBrand(brand);
-        setChosenBrandId(newBrand.id);
-        console.log("Brand Added: ", newBrand.brand_name)
+        setValue('brandId', newBrand.id);
     }
 
     // ---- Sizes ------------------------------
 
     const { data: sizes } = useSizes();
     const { mutateAsync: addSize, isPending: addSizeIsPending } = useAddSize();
-    const [chosenSizeId, setChosenSizeId] = useState<number>();
-
-    const handleChosenSize = (size: string | null): void => {
-        const chosenId = sizes?.find((s) => s.size === size)?.id;
-        setChosenSizeId(chosenId);
-    }
 
     const handleAddNewSize = async (size: string): Promise<void> => {
         const newSize = await addSize(size);
-        setChosenSizeId(newSize.id);
+        setValue('sizeId', newSize.id);
     }
 
-    //---Colors----------------------------
+    // ---- Colors ------------------------------
 
-    const {data: colors} = useColors();
-    const [chosenColorIds, setChosenColorIds] = useState<number[]>();
+    const { data: colors } = useColors();
 
     const handleChosenColors = (colors: Color[]) => {
-        const colorIds = colors.map((c) => c.id);
-        setChosenColorIds(colorIds);
+        setValue('colorIds', colors.map((c) => c.id));
     }
 
     // ---- Categories -----------
 
     const { data: categories } = useCategories();
-    const [chosenCategoryId, setChosenCategoryId] = useState<number | null>();
 
-    const handleChosenCategory = (value: string) => {
-        setChosenCategoryId(Number(value));
-        setValue('categoryId', Number(value), {shouldValidate: true});
-    }
-
-    const { data: subCategories, isLoading: isLoadingSubCategories } = useSubCategories(chosenCategoryId ?? null);
-    const [chosenSubCategoryId, setChosenSubCategoryId] = useState<number>(0);
-    const {mutateAsync: addNewSubcategory, isPending: addSubCategoryIsPending } = useAddSubcategory();
-
-    const handleChosenSubCategory = (subCategoryName: string | null) => {
-        const subCategoryId = subCategories?.find((c) => c.subCategoryName === subCategoryName)?.id;
-        setChosenSubCategoryId(subCategoryId ?? 0);
-    }
+    const { data: subCategories, isLoading: isLoadingSubCategories } = useSubCategories(categoryId ?? null);
+    const { mutateAsync: addNewSubcategory, isPending: addSubCategoryIsPending } = useAddSubcategory();
 
     const handleAddNewSubCategory = async (subCategoryName: string): Promise<void> => {
-        if(!chosenCategoryId) return;
-        const newSubCategory = await addNewSubcategory({ categoryId: chosenCategoryId, subCategoryName });
-        setChosenSubCategoryId(newSubCategory.id);
+        if (!categoryId) return;
+        const newSubCategory = await addNewSubcategory({ categoryId, subCategoryName });
+        setValue('subCategoryId', newSubCategory.id);
     }
 
     // ---- Locations -----------------------
-    const openLocationDialog = () => setIsLocationDialogOpen(true);
 
     const { data: locations } = useLocations();
     const [isLocationDialogOpen, setIsLocationDialogOpen] = useState<boolean>(false);
-    const [chosenLocationId, setChosenLocationId] = useState<number>(0);
-    const {mutateAsync: addLocation } = useAddLocation();
+    const { mutateAsync: addLocation } = useAddLocation();
 
-    const handleLocationAdded =  async (location: LocationForm): Promise<void> => {
+    const handleLocationAdded = async (location: Parameters<typeof addLocation>[0]): Promise<void> => {
         const newLocation = await addLocation(location);
-        setChosenLocationId(newLocation.id);
+        setValue('locationId', newLocation.id);
     }
 
-    const handleChosenLocation = (locationName: string | null): void => {
-        const chosenLocation = locations?.find((l) => l.businessName === locationName)?.id
-        setChosenLocationId(chosenLocation ?? 0);
-    }
+    // ---- Image Upload ------------------------------
 
-    //Upload Image Handler
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [imageFile, setImageFile] = useState<File | undefined>();
 
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if(!file) return; 
-        console.log(file.name);
+        if (!file) return;
         setImageFile(file);
-
     }
 
-        // ---- Initialize React Hook Table & Submit Functions --------------------
-    const { register, handleSubmit, control, setValue, formState: { errors }, reset } = useForm<InventoryForm>(
-        {defaultValues: {
-            gender: "Female",
-        }}
-    );
+    // ---- Form Submit & Reset --------------------
 
     const handleResetForm = () => {
         reset();
-        setChosenBrandId(undefined);
-        setChosenSizeId(undefined);
-        setChosenColorIds(undefined);
-        setChosenCategoryId(null);
-        setChosenSubCategoryId(0);
-        setChosenLocationId(0);
-        setPurchaseDate(undefined);
         setImageFile(undefined);
     }
 
     const [confirmDialogIsOpen, setConfirmDialogIsOpen] = useState<boolean>(false);
     const [submittedInventory, setSubmittedInventory] = useState<InventoryForm | undefined>();
 
-    
-
     const onSubmit: SubmitHandler<InventoryForm> = async (data: InventoryForm) => {
-        const inventoryData = {
-            ...data,
-            categoryId: chosenCategoryId ?? 0,
-            subCategoryId: chosenSubCategoryId ?? 0,
-            brandId: chosenBrandId ?? 0,
-            colorIds: chosenColorIds ?? [],
-            sizeId: chosenSizeId,
-            locationId: chosenLocationId,
-            datePurchased: purchaseDate ?? new Date()
-        };
-        setSubmittedInventory(inventoryData);
+        setSubmittedInventory(data);
         setConfirmDialogIsOpen(true);
     }
 
@@ -195,16 +137,13 @@ export const AddItem = () => {
                             <FieldGroup className="grid grid-cols-2 gap-2">
                                 <Field>
                                     <FieldLabel>Category</FieldLabel>
-                                    <Controller 
+                                    <Controller
                                         name='categoryId'
                                         control={control}
                                         rules={{required: true}}
                                         render={({field}) => {
                                             return (
-                                                <Select value={field.value ? String(field.value) : ''} onValueChange={(value) => {
-                                                    field.onChange(value);
-                                                    handleChosenCategory(value)}}
-                                                >
+                                                <Select value={field.value ? String(field.value) : ''} onValueChange={(value) => field.onChange(Number(value))}>
                                                     <SelectTrigger className={cn('w-full', errors.categoryId && 'border-destructive')}>
                                                         <SelectValue placeholder='Select a category...' />
                                                     </SelectTrigger>
@@ -224,30 +163,32 @@ export const AddItem = () => {
                                 </Field>
                                 <Field>
                                     <FieldLabel>Sub-Category</FieldLabel>
-                                    <OptionSelector
+                                    <OptionSelector<SubCategory>
                                         listName="sub-category"
                                         items={subCategories}
-                                        idKey="id"
-                                        labelKey="subCategoryName"
-                                        handleChosenItem={handleChosenSubCategory}
+                                        itemToStringLabel={(s) => s.subCategoryName}
+                                        itemToStringValue={(s) => String(s.id)}
+                                        isItemEqualToValue={(a, b) => a.id === b.id}
+                                        handleChosenItem={(s) => setValue('subCategoryId', s?.id ?? 0)}
                                         handleAddNew={handleAddNewSubCategory}
                                         addNewPending={addSubCategoryIsPending}
                                         loading={isLoadingSubCategories}
-                                        disabled={!chosenCategoryId || chosenCategoryId === 0 || isLoadingSubCategories}
+                                        disabled={!categoryId || isLoadingSubCategories}
                                     />
                                 </Field>
                             </FieldGroup>
                             <FieldGroup className="grid grid-cols-5 gap-2">
                                 <Field>
                                     <FieldLabel>Brand</FieldLabel>
-                                    <OptionSelector 
-                                            listName="brand" 
-                                            items={brands} 
-                                            idKey="id" 
-                                            labelKey="brandName" 
-                                            handleChosenItem={handleChosenBrand} 
-                                            handleAddNew={handleAddNewBrand}
-                                            addNewPending={addBrandisPending}
+                                    <OptionSelector<Brand>
+                                        listName="brand"
+                                        items={brands}
+                                        itemToStringLabel={(b) => b.brandName}
+                                        itemToStringValue={(b) => String(b.id)}
+                                        isItemEqualToValue={(a, b) => a.id === b.id}
+                                        handleChosenItem={(b) => setValue('brandId', b?.id)}
+                                        handleAddNew={handleAddNewBrand}
+                                        addNewPending={addBrandisPending}
                                     />
                                 </Field>
                                 <Field>
@@ -277,15 +218,16 @@ export const AddItem = () => {
                                 </Field>
                                     <Field>
                                         <FieldLabel>Size</FieldLabel>
-                                        <OptionSelector
+                                        <OptionSelector<Size>
                                             listName="size"
                                             items={sizes}
-                                            idKey="id"
-                                            labelKey="size"
-                                            handleChosenItem={handleChosenSize}
+                                            itemToStringLabel={(s) => s.size}
+                                            itemToStringValue={(s) => String(s.id)}
+                                            isItemEqualToValue={(a, b) => a.id === b.id}
+                                            handleChosenItem={(s) => setValue('sizeId', s?.id)}
                                             handleAddNew={handleAddNewSize}
                                             addNewPending={addSizeIsPending}
-                                            />
+                                        />
                                     </Field>
                                     <div className='flex items-end h-full pb-2'>
                                         <Field orientation="horizontal">
@@ -302,15 +244,15 @@ export const AddItem = () => {
                             <FieldGroup className="grid grid-cols-3">
                                 <Field>
                                     <FieldLabel>Purchase Location</FieldLabel>
-                                        <OptionSelector
+                                        <OptionSelector<Location>
                                             listName="location"
                                             items={locations}
-                                            idKey="id"
-                                            labelKey="businessName"
-                                            onOpenDialog={openLocationDialog}
-                                            handleChosenItem={handleChosenLocation}
+                                            itemToStringLabel={(l) => l.businessName}
+                                            itemToStringValue={(l) => String(l.id)}
+                                            isItemEqualToValue={(a, b) => a.id === b.id}
+                                            onOpenDialog={() => setIsLocationDialogOpen(true)}
+                                            handleChosenItem={(l) => setValue('locationId', l?.id ?? 0)}
                                             usesDialog
-                                            // renderItem={(locations) => <StoreLocationDetails />}
                                         />
                                 </Field>
                                 <Field>
@@ -334,20 +276,20 @@ export const AddItem = () => {
                                         <PopoverTrigger asChild>
                                             <Button
                                                 variant="outline"
-                                                data-empty={!purchaseDate}
+                                                data-empty={!datePurchased}
                                                 className="w-70 justify-start text-left font-normal data-[empty=true]:text-muted-foreground"
                                             >
                                                 <CalendarIcon />
-                                                {purchaseDate ? format(purchaseDate, 'MM/dd/yyyy') : <span>Select a Date</span>}
+                                                {datePurchased ? format(datePurchased, 'MM/dd/yyyy') : <span>Select a Date</span>}
                                             </Button>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-auto p-0">
-                                            <Calendar mode="single" captionLayout="dropdown" selected={purchaseDate} onSelect={setPurchaseDate} />
+                                            <Calendar mode="single" captionLayout="dropdown" selected={datePurchased} onSelect={(date) => setValue('datePurchased', date)} />
                                         </PopoverContent>
                                     </Popover>
                                 </Field>
                             </FieldGroup>
-                            
+
                         </FieldSet>
                         <FieldSeparator />
                         <FieldSet>
@@ -355,13 +297,13 @@ export const AddItem = () => {
                             <div className="flex items-center gap-2 max-w-1/2">
                                 <Button className="w-1/3 max-w-36" type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>Upload Image</Button>
                                 <input
-                                    className="hidden" 
+                                    className="hidden"
                                     ref={fileInputRef}
                                     type="file"
                                     accept="image/*"
                                     onChange={handleUpload}
                                 />
-                                {imageFile && 
+                                {imageFile &&
                                 <>
                                     <span className="text-muted-foreground text-sm">{imageFile.name}</span>
                                     <Button variant="ghost" onClick={ ()=> {
@@ -384,10 +326,7 @@ export const AddItem = () => {
                         </FieldSet>
                     </FieldGroup>
         </form>
-         {/*Conditionally Render New Location Dialog*/}
          <NewLocationDialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen} onLocationAdded={handleLocationAdded}/>
-
-         {/* <ConfirmItemDialog open={confirmDialogIsOpen} inventory={submittedInventory!} /> */}
          <ConfirmItemDialog open={confirmDialogIsOpen} onOpenChange={setConfirmDialogIsOpen} inventory={submittedInventory} image={imageFile} onSaveForLater={handleResetForm} />
     </div>
     )

@@ -39,12 +39,10 @@ const MeasurementCombobox = ({ measurements, addMeasurement, addMeasurementIsPen
         <OptionSelector
             listName='Measurement'
             items={measurements}
-            labelKey="measurementName"
-            idKey="id"
-            handleChosenItem={(name) => {
-                const match = measurements?.find((m) => m.measurementName === name);
-                onChange("measurement", String(match?.id));
-            }}
+            itemToStringLabel={(m) => m.measurementName}
+            itemToStringValue={(m) => String(m.id)}
+            isItemEqualToValue={(a, b) => a.id === b.id}
+            handleChosenItem={(m) => onChange("measurement", String(m?.id))}
             handleAddNew={async (name) => { await addMeasurement(name); }}
             addNewPending={addMeasurementIsPending}
             container={container ?? undefined}

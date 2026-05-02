@@ -107,12 +107,10 @@ export const EditPrimaryDetails = ({
                                 <OptionSelector
                                     listName="sub-category"
                                     items={subCategories}
-                                    idKey="id"
-                                    labelKey="subCategoryName"
-                                    handleChosenItem={(name) => {
-                                        const id = subCategories?.find(s => s.subCategoryName === name)?.id;
-                                        onSubCategoryChange(id ?? 0);
-                                    }}
+                                    itemToStringLabel={(s) => s.subCategoryName}
+                                    itemToStringValue={(s) => String(s.id)}
+                                    isItemEqualToValue={(a, b) => a.id === b.id}
+                                    handleChosenItem={(s) => onSubCategoryChange(s?.id ?? 0)}
                                     handleAddNew={handleAddNewSubCategory}
                                     addNewPending={addSubCategoryIsPending}
                                     loading={isLoadingSubCategories}
@@ -123,12 +121,10 @@ export const EditPrimaryDetails = ({
                                 <OptionSelector
                                     listName="brand"
                                     items={brands}
-                                    idKey="id"
-                                    labelKey="brandName"
-                                    handleChosenItem={(name) => {
-                                        const id = brands?.find(b => b.brandName === name)?.id;
-                                        onBrandChange(id);
-                                    }}
+                                    itemToStringLabel={(b) => b.brandName}
+                                    itemToStringValue={(b) => String(b.id)}
+                                    isItemEqualToValue={(a, b) => a.id === b.id}
+                                    handleChosenItem={(b) => onBrandChange(b?.id)}
                                     handleAddNew={handleAddNewBrand}
                                     addNewPending={addBrandIsPending}
                                 />
@@ -168,12 +164,10 @@ export const EditPrimaryDetails = ({
                                 <OptionSelector
                                     listName="size"
                                     items={sizes}
-                                    idKey="id"
-                                    labelKey="size"
-                                    handleChosenItem={(size) => {
-                                        const id = sizes?.find(s => s.size === size)?.id;
-                                        onSizeChange(id);
-                                    }}
+                                    itemToStringLabel={(s) => s.size}
+                                    itemToStringValue={(s) => String(s.id)}
+                                    isItemEqualToValue={(a, b) => a.id === b.id}
+                                    handleChosenItem={(s) => onSizeChange(s?.id)}
                                     handleAddNew={handleAddNewSize}
                                     addNewPending={addSizeIsPending}
                                 />
@@ -195,12 +189,10 @@ export const EditPrimaryDetails = ({
                                 <OptionSelector
                                     listName="location"
                                     items={locations}
-                                    idKey="id"
-                                    labelKey="businessName"
-                                    handleChosenItem={(name) => {
-                                        const id = locations?.find(l => l.businessName === name)?.id;
-                                        onLocationChange(id ?? 0);
-                                    }}
+                                    itemToStringLabel={(l) => l.businessName}
+                                    itemToStringValue={(l) => String(l.id)}
+                                    isItemEqualToValue={(a, b) => a.id === b.id}
+                                    handleChosenItem={(l) => onLocationChange(l?.id ?? 0)}
                                     onOpenDialog={() => setIsLocationDialogOpen(true)}
                                     usesDialog
                                 />

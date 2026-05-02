@@ -4,41 +4,57 @@ import { Loader2, PlusSquare } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 export type OptionSelectionProps<T> = {
-    listName: string,
+    listName: string;
     items: T[] | undefined;
-    labelKey: keyof T;
-    idKey: keyof T;
+    itemToStringLabel: (item: T) => string;
+    itemToStringValue: (item: T) => string;
+    isItemEqualToValue: (a: T, b: T) => boolean;
     usesDialog?: boolean;
-    handleChosenItem: (item_name: string | null) => void;
+    handleChosenItem: (item: T | null) => void;
     handleAddNew?: (inputValue: string) => Promise<void>;
     addNewPending?: boolean;
     onOpenDialog?: () => void;
     renderItem?: (item: T) => ReactNode;
     loading?: boolean;
-    hideAddNew?: boolean
+    hideAddNew?: boolean;
     disabled?: boolean;
-    container?: HTMLElement
+    container?: HTMLElement;
 }
-const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handleChosenItem, handleAddNew, addNewPending, onOpenDialog, renderItem, loading, hideAddNew, disabled, container}: OptionSelectionProps<T>) => {
+
+const OptionSelector = <T,>({ listName, items, itemToStringLabel, itemToStringValue, isItemEqualToValue, usesDialog, handleChosenItem, handleAddNew, addNewPending, onOpenDialog, renderItem, loading, hideAddNew, disabled, container }: OptionSelectionProps<T>) => {
     const [inputValue, setInputValue] = useState<string>('');
+    const [selectedValue, setSelectedValue] = useState<T | null>(null);
 
     return (
-     <Combobox disabled={disabled} items={items} onValueChange={handleChosenItem} autoHighlight>
-            <ComboboxInput 
+        <Combobox
+            disabled={disabled}
+            items={items}
+            value={selectedValue}
+            onValueChange={(item: T | null) => {
+                setSelectedValue(item);
+                handleChosenItem(item);
+            }}
+            itemToStringLabel={itemToStringLabel}
+            itemToStringValue={itemToStringValue}
+            isItemEqualToValue={isItemEqualToValue}
+            autoHighlight
+        >
+            <ComboboxInput
                 placeholder={loading ? 'Loading...' : `Select a ${listName}...`}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={disabled}
             />
-            <ComboboxContent container={container} >
+            <ComboboxContent container={container}>
                 {!usesDialog && !hideAddNew && (
-                <ComboboxEmpty>
-                    <Button size="default" disabled={addNewPending} className="w-full justify-start" variant="ghost" onClick={() => handleAddNew?.(inputValue)}>
-                        {addNewPending ? 
-                            <><Loader2 className="animate-spin"/>{`Adding ${inputValue}...`}</> : 
-                            <><PlusSquare />{`Add ${inputValue}`}</>
-                        }
-                    </Button>
-                </ComboboxEmpty>)}
+                    <ComboboxEmpty>
+                        <Button size="default" disabled={addNewPending} className="w-full justify-start" variant="ghost" onClick={() => handleAddNew?.(inputValue)}>
+                            {addNewPending ?
+                                <><Loader2 className="animate-spin" />{`Adding ${inputValue}...`}</> :
+                                <><PlusSquare />{`Add ${inputValue}`}</>
+                            }
+                        </Button>
+                    </ComboboxEmpty>
+                )}
                 {usesDialog && !hideAddNew && (
                     <Button size="default" variant="ghost" onClick={() => onOpenDialog?.()}>
                         <PlusSquare />
@@ -47,14 +63,14 @@ const OptionSelector = <T,>({listName, items, labelKey, idKey, usesDialog, handl
                 )}
                 <ComboboxList>
                     {(item) => (
-                        <ComboboxItem key={item[idKey] as number} value={item[labelKey] as string}>
-                            {renderItem ? renderItem(item) : item[labelKey] as string}
+                        <ComboboxItem key={itemToStringValue(item)} value={item}>
+                            {renderItem ? renderItem(item) : itemToStringLabel(item)}
                         </ComboboxItem>
                     )}
                 </ComboboxList>
             </ComboboxContent>
         </Combobox>
-    )
-}
+    );
+};
 
 export default OptionSelector;
