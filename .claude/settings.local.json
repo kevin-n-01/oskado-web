@@ -10,7 +10,9 @@
       "mcp__Neon__run_sql",
       "mcp__Neon__run_sql_transaction",
       "WebSearch",
-      "WebFetch(domain:clerk.com)"
+      "WebFetch(domain:clerk.com)",
+      "mcp__shadcn__view_items_in_registries",
+      "mcp__shadcn__get_item_examples_from_registries"
     ]
   },
   "enableAllProjectMcpServers": true,
