@@ -1,9 +1,10 @@
 
 import OptionSelector from "../components/OptionSelector";
-import { useRef, useState } from "react"
+import { useRef, useState, type ReactNode } from "react"
 import type { Brand, Color, Location, Size, SubCategory, InventoryForm} from "@/types";
 import { NewLocationDialog } from "@/components/NewLocationDialog";
-import { Controller, useForm, type SubmitHandler } from "react-hook-form";
+import { Controller, useForm, useWatch, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldLegend, FieldSeparator, FieldSet } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/components/ui/input-group";
@@ -23,19 +24,21 @@ import { useAddLocation, useLocations } from "@/hooks/useLocations";
 import { useAddSize, useSizes } from "@/hooks/useSizes";
 import ConfirmItemDialog from "@/components/ConfirmItemDialog";
 import { cn } from "@/lib/utils";
+import {GENDERS as genderMap} from "@/lib/constants"
+import { addItemSchema, type AddItemForm } from "./AddItem.schema";
 
 
 
-export const AddItem = () => {
+export const AddItem = (): ReactNode => {
 
-    const genderMap = ["Female", "Male", "Unisex"];
-
-    const { register, handleSubmit, control, setValue, watch, formState: { errors }, reset } = useForm<InventoryForm>(
-        { defaultValues: { gender: "Female" } }
+    const { register, handleSubmit, control, setValue, formState: { errors }, reset } = useForm<AddItemForm>(
+        { 
+            defaultValues: { gender: "Female" },
+            resolver: zodResolver(addItemSchema)
+        }
     );
-
-    const categoryId = watch('categoryId');
-    const datePurchased = watch('datePurchased');
+    const categoryId = useWatch({ control, name: 'categoryId' });
+    const datePurchased = useWatch({ control, name: 'datePurchased' });
 
     // ---- Brands ------------------------------
 
@@ -92,19 +95,19 @@ export const AddItem = () => {
     // ---- Image Upload ------------------------------
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [imageFile, setImageFile] = useState<File | undefined>();
+
+    const imageFile = useWatch({ control, name: 'imageFile' });
 
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
-        setImageFile(file);
+        setValue('imageFile', file);
     }
 
     // ---- Form Submit & Reset --------------------
 
     const handleResetForm = () => {
         reset();
-        setImageFile(undefined);
     }
 
     const [confirmDialogIsOpen, setConfirmDialogIsOpen] = useState<boolean>(false);
@@ -261,7 +264,7 @@ export const AddItem = () => {
                                         <InputGroupAddon>
                                             <InputGroupText>$</InputGroupText>
                                         </InputGroupAddon>
-                                            <InputGroupInput {...register("purchasePrice")}
+                                            <InputGroupInput {...register("purchasePrice", { valueAsNumber: true })}
                                                 id="purchasePrice"
                                                 placeholder="0.00"
                                             />
@@ -307,7 +310,7 @@ export const AddItem = () => {
                                 <>
                                     <span className="text-muted-foreground text-sm">{imageFile.name}</span>
                                     <Button variant="ghost" onClick={ ()=> {
-                                        setImageFile(undefined);
+                                        setValue('imageFile', undefined);
                                         if(fileInputRef.current) fileInputRef.current.value = '';
                                     }}>
                                         {<X />}

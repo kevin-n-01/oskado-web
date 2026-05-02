@@ -11,6 +11,9 @@ export const STATUS_COLORS = {
     "Discontinued": "bg-red-500",
 } as const;
 
+export const GENDERS = ["Female", "Male", "Unisex"] as const;
+export type Gender = (typeof GENDERS)[number]
+
 export type Status = keyof typeof STATUS_COLORS;
 export type StatusColor = (typeof STATUS_COLORS)[Status];
 

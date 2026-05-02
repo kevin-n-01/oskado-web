@@ -1,4 +1,4 @@
-import type { MeasurementUnits } from "./lib/constants";
+import type { Gender, MeasurementUnits } from "./lib/constants";
 
 export type StoreLocation = {
   id: number;
@@ -105,7 +105,7 @@ type InventoryBase = {
     sizeId?: number | undefined;
     purchasePrice?: number;
     datePurchased?: Date;
-    gender?: string;
+    gender?: Gender;
     isChild?: boolean;
     imagePath?: string | undefined;
     thumbnailPath?: string | undefined;
@@ -121,7 +121,7 @@ export type InventoryForm = InventoryBase & {
     websiteIds?: number[];
     condition?: string;
     conditionDescription?: string;
-
+    imageFile?: File;
     listingPrice?: number | null;
     listingDate?: Date | null;
 }
