@@ -8,7 +8,11 @@
       "mcp__Neon__describe_table_schema",
       "mcp__Neon__get_database_tables",
       "mcp__Neon__run_sql",
-      "mcp__Neon__run_sql_transaction"
+      "mcp__Neon__run_sql_transaction",
+      "WebSearch",
+      "WebFetch(domain:clerk.com)",
+      "mcp__shadcn__view_items_in_registries",
+      "mcp__shadcn__get_item_examples_from_registries"
     ]
   },
   "enableAllProjectMcpServers": true,

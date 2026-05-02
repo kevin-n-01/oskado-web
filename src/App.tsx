@@ -10,6 +10,7 @@ import { Analytics } from './pages/Analytics'
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { InventoryItem } from './pages/InventoryItem'
+import { Toaster } from './components/ui/sonner'
 
 const App = (): ReactNode => {
 
@@ -30,6 +31,7 @@ const App = (): ReactNode => {
                     </Route>
                 </Routes>
             </BrowserRouter>
+            <Toaster />
             <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
 

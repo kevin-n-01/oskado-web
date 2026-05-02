@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import sql from '../src/lib/db';
 import humps from 'humps';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function brandsHandler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'GET') {
         try {
             const brands = await sql`SELECT * FROM brands ORDER BY brand_name`;

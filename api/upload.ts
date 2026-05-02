@@ -3,8 +3,12 @@ import formidable, {Fields, Files} from 'formidable';
 import sharp from 'sharp';
 import { put } from "@vercel/blob";
 import { randomUUID } from "crypto";
+import { requireAuth } from "../server/auth";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+
+    if(await requireAuth(req, res)) return;
+
     if(req.method === 'POST') {
         const form = formidable({});
         let fields: Fields;
