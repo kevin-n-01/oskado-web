@@ -1,4 +1,4 @@
-import { type Brand, type Category, type Size, type SubCategory, type Color, type InventoryForm, type Location } from "@/types";
+import { type Brand, type Category, type Size, type SubCategory, type Color, type Location } from "@/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type Dispatch, type ReactNode } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -8,11 +8,12 @@ import { Button } from "./ui/button";
 import { Loader2 } from "lucide-react";
 import { useUpload } from "@/hooks/useUploads";
 import { useNavigate } from "react-router-dom";
+import type { AddItemForm } from "@/pages/AddItem.schema";
 
 type ConfirmItemDialogProps = {
     open: boolean;
     onOpenChange: Dispatch<React.SetStateAction<boolean>>;
-    inventory: InventoryForm | undefined;
+    inventory: AddItemForm | undefined;
     image: File | undefined;
     onSaveForLater?: () => void;
     onAddMoreDetails?: () => void;
@@ -50,7 +51,7 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
     let sizeName = qc.getQueryData<Size[]>(['sizes'])?.find((s) => s.id === inventory?.sizeId)?.size || 'Unknown Size';
     sizeName = inventory?.isChild ? `Children's ${sizeName}` : `Adult's ${sizeName}`;
 
-    const handleAddItem = async (inventory: InventoryForm): Promise<{sku: string}> => {
+    const handleAddItem = async (inventory: AddItemForm): Promise<{sku: string}> => {
         let imagePath: string | undefined;
         let thumbnailPath: string | undefined;
         if(image) {
@@ -68,7 +69,7 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
         onSaveForLater?.();
     }
 
-    const handleAddMoreDetails = async (inventory: InventoryForm) => {
+    const handleAddMoreDetails = async (inventory: AddItemForm) => {
         const newItem = await handleAddItem(inventory);
         navigate(`/catalog/${newItem.sku}`, {state: {openDetails: true}});
     }

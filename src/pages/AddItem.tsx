@@ -1,7 +1,7 @@
 
 import OptionSelector from "../components/OptionSelector";
 import { useRef, useState, type ReactNode } from "react"
-import type { Brand, Color, Location, Size, SubCategory, InventoryForm} from "@/types";
+import type { Brand, Color, Location, Size, SubCategory} from "@/types";
 import { NewLocationDialog } from "@/components/NewLocationDialog";
 import { Controller, useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -26,6 +26,7 @@ import ConfirmItemDialog from "@/components/ConfirmItemDialog";
 import { cn } from "@/lib/utils";
 import {GENDERS as genderMap} from "@/lib/constants"
 import { addItemSchema, type AddItemForm } from "./AddItem.schema";
+import FormFieldError from "@/components/FormFieldError";
 
 
 
@@ -111,9 +112,9 @@ export const AddItem = (): ReactNode => {
     }
 
     const [confirmDialogIsOpen, setConfirmDialogIsOpen] = useState<boolean>(false);
-    const [submittedInventory, setSubmittedInventory] = useState<InventoryForm | undefined>();
+    const [submittedInventory, setSubmittedInventory] = useState<AddItemForm | undefined>();
 
-    const onSubmit: SubmitHandler<InventoryForm> = async (data: InventoryForm) => {
+    const onSubmit: SubmitHandler<AddItemForm> = async (data: AddItemForm) => {
         setSubmittedInventory(data);
         setConfirmDialogIsOpen(true);
     }
@@ -124,7 +125,7 @@ export const AddItem = (): ReactNode => {
         <div className="sticky top-0 pt-6 bg-card z-10">
             <h1 className="text-2xl text-accent-foreground mb-4">Add New Item</h1>
         </div>
-        <form id='add-new-item-form' onSubmit={handleSubmit(onSubmit)}>
+        <form id='add-new-item-form' onSubmit={handleSubmit(onSubmit, (errors) => console.log(errors))}>
                     <FieldGroup>
                         <FieldSet>
                             <FieldLegend className='pb-2'>Product Information</FieldLegend>
@@ -136,6 +137,7 @@ export const AddItem = (): ReactNode => {
                                     placeholder="White Hanes T-Shirt"
                                     required
                                 />
+                                <FormFieldError error={errors.shortDescription} />
                             </Field>
                             <FieldGroup className="grid grid-cols-2 gap-2">
                                 <Field>
@@ -163,6 +165,7 @@ export const AddItem = (): ReactNode => {
                                             )
                                         }}
                                     />
+                                    <FormFieldError error={errors.categoryId} />
                                 </Field>
                                 <Field>
                                     <FieldLabel>Sub-Category</FieldLabel>
@@ -234,7 +237,21 @@ export const AddItem = (): ReactNode => {
                                     </Field>
                                     <div className='flex items-end h-full pb-2'>
                                         <Field orientation="horizontal">
-                                            <Checkbox id="isChild" {...register("isChild")} />
+                                            <Controller
+                                                name="isChild"
+                                                control={control}
+                                                render={({field}) => {
+                                                    return (
+                                                        <Checkbox
+                                                            id="isChild"
+                                                            checked={field.value ?? false}
+                                                            onCheckedChange={field.onChange}
+                                                        />
+                                                    )
+                                                    
+                                                }}
+                                            />
+                                            
                                             <FieldLabel htmlFor="isChild">Children's?</FieldLabel>
                                         </Field>
                                     </div>
@@ -247,16 +264,17 @@ export const AddItem = (): ReactNode => {
                             <FieldGroup className="grid grid-cols-3">
                                 <Field>
                                     <FieldLabel>Purchase Location</FieldLabel>
-                                        <OptionSelector<Location>
-                                            listName="location"
-                                            items={locations}
-                                            itemToStringLabel={(l) => l.businessName}
-                                            itemToStringValue={(l) => String(l.id)}
-                                            isItemEqualToValue={(a, b) => a.id === b.id}
-                                            onOpenDialog={() => setIsLocationDialogOpen(true)}
-                                            handleChosenItem={(l) => setValue('locationId', l?.id ?? 0)}
-                                            usesDialog
-                                        />
+                                    <OptionSelector<Location>
+                                        listName="location"
+                                        items={locations}
+                                        itemToStringLabel={(l) => l.businessName}
+                                        itemToStringValue={(l) => String(l.id)}
+                                        isItemEqualToValue={(a, b) => a.id === b.id}
+                                        onOpenDialog={() => setIsLocationDialogOpen(true)}
+                                        handleChosenItem={(l) => setValue('locationId', l?.id ?? 0)}
+                                        usesDialog
+                                    />
+                                    <FormFieldError error={errors.locationId} />
                                 </Field>
                                 <Field>
                                     <FieldLabel htmlFor="purchasePrice">Purchase Price</FieldLabel>
@@ -272,6 +290,7 @@ export const AddItem = (): ReactNode => {
                                                 <InputGroupText>USD</InputGroupText>
                                             </InputGroupAddon>
                                     </InputGroup>
+                                    <FormFieldError error={errors.purchasePrice} />
                                 </Field>
                                 <Field>
                                     <FieldLabel htmlFor="purchaseDate">Purchase Date</FieldLabel>
@@ -290,6 +309,7 @@ export const AddItem = (): ReactNode => {
                                             <Calendar mode="single" captionLayout="dropdown" selected={datePurchased} onSelect={(date) => setValue('datePurchased', date)} />
                                         </PopoverContent>
                                     </Popover>
+                                    <FormFieldError error={errors.datePurchased} />
                                 </Field>
                             </FieldGroup>
 

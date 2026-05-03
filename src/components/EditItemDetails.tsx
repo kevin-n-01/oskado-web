@@ -18,6 +18,9 @@ import { CONDITION_LIST, type ConditionList } from "@/lib/constants";
 import { Button } from "./ui/button";
 import { useUpdateInventory } from "@/hooks/useInventory";
 import { Loader2 } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { editItemDetails, type EditItemForm } from "./EditItemDetails.schema";
+import FormFieldError from "./FormFieldError";
 // import { EditPrimaryDetails } from "./EditPrimaryDetails";
 
 type EditItemDetailsProps = {
@@ -54,15 +57,8 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
 
     const { mutateAsync: updateInventory, isPending: updateInventoryPending } = useUpdateInventory(item?.sku);
 
-    const { handleSubmit, register, control } = useForm<InventoryForm>({
-        defaultValues: {
-            // shortDescription: item?.shortDescription,
-            // gender: item?.gender,
-            // isChild: item?.isChild,
-            // purchasePrice: item?.purchasePrice,
-            // condition: item?.condition ?? undefined,
-            // conditionDescription: item?.conditionDescription ?? undefined,
-        }
+    const { handleSubmit, register, control, formState: { errors } } = useForm<EditItemForm>({
+        resolver: zodResolver(editItemDetails)
     });
 
     // Portal container
@@ -140,7 +136,7 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
             <DialogContent className="max-w-2xl max-h-[80vh]">
                 <DialogTitle><DialogHeader className='text-xl px-0'>Edit Item Details</DialogHeader></DialogTitle>
                 <div ref={containerRef} />
-                <form className="overflow-y-auto overflow-x-hidden max-h-[calc(80vh-8rem)] pr-4" id='edit-item-details' onSubmit={handleSubmit(onSubmit)}>
+                <form className="overflow-y-auto overflow-x-hidden max-h-[calc(80vh-8rem)] pr-4" id='edit-item-details' onSubmit={handleSubmit(onSubmit, (error) => console.log(error))}>
                     <FieldGroup>
                         <FieldSet>
                             <Field className='max-w-80'>
@@ -157,6 +153,7 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
                                     renderChip={(item) => <>{item.seasonName}</>}
                                     renderListItem={(item) => <>{item.seasonName}</>}
                                 />
+                                <FormFieldError error={errors?.seasons?.root} />
                             </Field>
                             <Field className='max-w-80'>
                                 <FieldLabel>Tags</FieldLabel>
@@ -217,6 +214,7 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
                             <Field className='w-fit'>
                                 <FieldLabel>Fabric Selection</FieldLabel>
                                 <TableSelector columns={fabricColumns} optionsMap={fabricOptions} onRowsChange={setFabricRows} />
+                                <FormFieldError error={errors.fabrics?.root} />
                             </Field>
                             <Field className='w-fit'>
                                 <FieldLabel>Measurements</FieldLabel>
