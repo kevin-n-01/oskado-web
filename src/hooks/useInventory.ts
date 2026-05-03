@@ -4,6 +4,7 @@ import axios from "axios"
 
 
 export const useAddInventory = () => {
+    const queryClient = useQueryClient();
     return useMutation<{ sku: string }, Error, InventoryForm>({
         mutationFn: async (inventory: InventoryForm) => {
             const result = await axios.post('/api/inventory', {
@@ -12,7 +13,9 @@ export const useAddInventory = () => {
             })
             return result.data;
         },
-        // TODO: Add invalidation for inventories once added for refetch
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['inventories']});
+        }
     })
 }
 

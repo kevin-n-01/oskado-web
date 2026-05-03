@@ -69,9 +69,9 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
         onSaveForLater?.();
     }
 
-    const handleAddMoreDetails = async (inventory: AddItemForm) => {
+    const navigateToNewItem = async (inventory: AddItemForm, openDetails: boolean) => {
         const newItem = await handleAddItem(inventory);
-        navigate(`/catalog/${newItem.sku}`, {state: {openDetails: true}});
+        navigate(`/catalog/${newItem.sku}`, {state: { openDetails }});
     }
 
     
@@ -115,7 +115,7 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
                         type="button"
                         variant="default"
                         disabled={!inventory || uploadIsPending || addInvIsPending}
-                        onClick={() => handleAddMoreDetails(inventory!)}
+                        onClick={() => navigateToNewItem(inventory!, true)}
                     >Add More Details</Button>
                 </div>
                 <Dialog open={addInvIsSuccess}>
@@ -127,7 +127,7 @@ const ConfirmItemDialog = ({ open, onOpenChange, inventory, image, onSaveForLate
                         </DialogHeader>
                         <div className="flex flex-row gap-2 justify-end">
                             <Button className='min-w-15' onClick={() => handleSubmitAnotherItem()}>Yes</Button>
-                            <Button variant="secondary" className='min-w-15'>No</Button>
+                            <Button variant="secondary" className='min-w-15' onClick={() => navigateToNewItem(inventory!, false)}>No</Button>
                         </div>
                     </DialogContent>
                 </Dialog>

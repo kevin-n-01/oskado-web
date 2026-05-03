@@ -3,6 +3,7 @@ import type React from "react"
 import { Badge } from "./ui/badge"
 import { STATUS_COLORS, type StatusColor } from "@/lib/constants"
 import { cn } from "@/lib/utils"
+import { Skeleton } from "./ui/skeleton"
 
 type InventoryTileProps = {
     item: Inventory;
@@ -33,4 +34,20 @@ const InventoryTile = ({item, onClick}: InventoryTileProps): React.ReactNode => 
     )
 }
 
+const LoadingInventoryTile = () => {
+    return (
+        <div className='relative flex flex-row gap-3 rounded-lg border-2 p-4 shadow'>
+            <Skeleton className="rounded-sm w-1/3 h-24 self-center shrink-0" />
+            <Skeleton className="absolute top-2 right-2 w-16 h-5 rounded-full" />
+            <div className="flex flex-col gap-1 pr-16 justify-center">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-4 w-1/3" />
+            </div>
+        </div>
+    )
+}
+
+export { LoadingInventoryTile };
 export default InventoryTile;

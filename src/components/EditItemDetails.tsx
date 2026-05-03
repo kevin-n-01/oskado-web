@@ -21,6 +21,7 @@ import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { editItemDetails, type EditItemForm } from "./EditItemDetails.schema";
 import FormFieldError from "./FormFieldError";
+import { toast } from "sonner";
 // import { EditPrimaryDetails } from "./EditPrimaryDetails";
 
 type EditItemDetailsProps = {
@@ -57,7 +58,7 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
 
     const { mutateAsync: updateInventory, isPending: updateInventoryPending } = useUpdateInventory(item?.sku);
 
-    const { handleSubmit, register, control, formState: { errors } } = useForm<EditItemForm>({
+    const { handleSubmit, register, control, setValue, formState: { errors } } = useForm<EditItemForm>({
         resolver: zodResolver(editItemDetails)
     });
 
@@ -87,6 +88,15 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
         { key: "fabric", label: "Fabric", type: "dropdown" },
         { key: "percentage", label: "%", type: "number", min: 0, max: 100 }
     ]
+
+    const syncFabricRows = (rows: RowData[]) => {
+        setFabricRows(rows);
+        setValue('fabrics', rows.flatMap((row) => {
+            const fabricId = fabrics?.find((f) => f.fabricName === row.fabric)?.id;
+            if (!fabricId) return [];
+            return [{ fabricId, percentage: Number(row.percentage) }];
+        }));
+    }
 
     // Measurements
     const [measurementRows, setMeasurementRows] = useState<RowData[]>([]);
@@ -128,7 +138,12 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
             seasonIds: selectedSeasons.map((season) => season.id),
             tagIds: selectedTags.map((tag) => tag.id),
         }
-        await updateInventory(payload);
+        try {
+            await updateInventory(payload);
+            onOpenChange(false);
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Failed to update inventory');
+        }
     }
 
     return (
@@ -136,7 +151,7 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
             <DialogContent className="max-w-2xl max-h-[80vh]">
                 <DialogTitle><DialogHeader className='text-xl px-0'>Edit Item Details</DialogHeader></DialogTitle>
                 <div ref={containerRef} />
-                <form className="overflow-y-auto overflow-x-hidden max-h-[calc(80vh-8rem)] pr-4" id='edit-item-details' onSubmit={handleSubmit(onSubmit, (error) => console.log(error))}>
+                <form className="overflow-y-auto overflow-x-hidden max-h-[calc(80vh-8rem)] pr-4" id='edit-item-details' onSubmit={handleSubmit(onSubmit, () => toast.error("Please correct the indicated form errors"))}>
                     <FieldGroup>
                         <FieldSet>
                             <Field className='max-w-80'>
@@ -213,7 +228,8 @@ export const EditItemDetails = ({ open, onOpenChange, item }: EditItemDetailsPro
                         <FieldSet>
                             <Field className='w-fit'>
                                 <FieldLabel>Fabric Selection</FieldLabel>
-                                <TableSelector columns={fabricColumns} optionsMap={fabricOptions} onRowsChange={setFabricRows} />
+                                <TableSelector columns={fabricColumns} optionsMap={fabricOptions} onRowsChange={syncFabricRows} />
+                <FormFieldError error={errors.fabrics?.root ?? errors.fabrics} />
                                 <FormFieldError error={errors.fabrics?.root} />
                             </Field>
                             <Field className='w-fit'>
