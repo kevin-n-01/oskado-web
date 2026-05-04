@@ -43,7 +43,7 @@ export const InventoryItem = (): React.ReactNode => {
     const showMarkItemSoldButton = item?.status === "Listed" as Status;
 
     return (
-        <div className='w-full px-7'>
+        <div className='w-full h-full px-7 flex flex-col '>
             <div className='sticky top-0 pt-7 bg-card z-10'>
                 <ItemBreadCrumb item={item} isLoading={inventoryIsLoading} />
                 <div className="pt-4 pb-2">
@@ -64,65 +64,63 @@ export const InventoryItem = (): React.ReactNode => {
                     }
                 </div>
             </div>
-                <div>
-                    <div className="flex flex-row gap-6 my-6">
-                        {inventoryIsLoading
-                            ? <Skeleton className="rounded-2xl w-1/3 h-80 self-start shrink-0" />
-                            : <img className="rounded-2xl max-w-1/3 object-cover self-start" src={item?.imagePath ?? undefined} />
-                        }
-                        <Separator orientation="vertical" />
-                        <div className="flex flex-col gap-4 flex-1 min-w-0">
-                            {inventoryIsLoading ? (
-                                <>
-                                    <div className="flex flex-row gap-2">
-                                        <Skeleton className="h-8 w-24" />
-                                        <Skeleton className="h-8 w-36" />
-                                    </div>
-                                    <Separator />
-                                    <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-3 items-baseline">
-                                        {Array.from({ length: 6 }).map((_, i) => (
-                                            <>
-                                                <Skeleton key={`label-${i}`} className="h-4 w-24" />
-                                                <Skeleton key={`value-${i}`} className="h-4 w-32" />
-                                            </>
-                                        ))}
-                                    </div>
-                                    <Separator />
-                                    <div className="flex flex-row gap-4">
-                                        <Skeleton className="h-8 w-28" />
-                                        <Skeleton className="h-8 w-24" />
-                                        <Skeleton className="h-8 w-32" />
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="flex flex-row gap-2">
-                                        <Button size="sm" onClick={() => setShowItemDetails(true)}>Edit Details</Button>
-                                        {showMarkItemListedButton && <Button size="sm" onClick={() => setShowMarkItemListed(true)}>Mark Item as Listed</Button>}
-                                        {showMarkItemSoldButton && <Button size="sm">Mark Item as Sold</Button>}
-                                    </div>
-                                    <Separator />
-                                    <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-2 items-baseline">
-                                        <SummaryRow property={item?.categoryName} label="Category" />
-                                        <SummaryRow property={item?.subCategoryName} label="Sub-Category" />
-                                        <SummaryRow property={item?.brandName as string | undefined} label="Brand" />
-                                        <SummaryRow property={item?.size as string | undefined} label="Size" />
-                                        <SummaryRow property={item?.gender} label="Gender" />
-                                        <SummaryRow property={item?.condition ?? "—"} label="Condition" />
-                                        {item?.conditionDescription && <SummaryRow property={item?.conditionDescription} label="Addl Info" />}
-                                    </div>
-                                    <Separator />
-                                    <Tabs defaultValue="description">
-                                        <TabsList variant="line">
-                                            <TabsTrigger value="description">Item Description</TabsTrigger>
-                                            <TabsTrigger value="purchase">Purchase Info</TabsTrigger>
-                                            <TabsTrigger value="status_history">Status History</TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent value="description"><InventoryItemDesc item={item} /></TabsContent>
-                                    </Tabs>
-                                </>
-                            )}
-                        </div>
+                <div className="flex flex-row gap-6 my-6 flex-1 min-h-0">
+                    {inventoryIsLoading
+                        ? <Skeleton className="rounded-2xl w-1/3 h-80 self-start shrink-0" />
+                        : <img className="rounded-2xl max-w-1/3 object-cover self-start" src={item?.imagePath ?? undefined} />
+                    }
+                    <Separator orientation="vertical" />
+                    <div className="flex flex-col gap-4 flex-1 min-w-0 overflow-y-auto">
+                        {inventoryIsLoading ? (
+                            <>
+                                <div className="flex flex-row gap-2">
+                                    <Skeleton className="h-8 w-24" />
+                                    <Skeleton className="h-8 w-36" />
+                                </div>
+                                <Separator />
+                                <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-3 items-baseline">
+                                    {Array.from({ length: 6 }).map((_, i) => (
+                                        <>
+                                            <Skeleton key={`label-${i}`} className="h-4 w-24" />
+                                            <Skeleton key={`value-${i}`} className="h-4 w-32" />
+                                        </>
+                                    ))}
+                                </div>
+                                <Separator />
+                                <div className="flex flex-row gap-4">
+                                    <Skeleton className="h-8 w-28" />
+                                    <Skeleton className="h-8 w-24" />
+                                    <Skeleton className="h-8 w-32" />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex flex-row gap-2">
+                                    <Button size="sm" onClick={() => setShowItemDetails(true)}>Edit Details</Button>
+                                    {showMarkItemListedButton && <Button size="sm" onClick={() => setShowMarkItemListed(true)}>Mark Item as Listed</Button>}
+                                    {showMarkItemSoldButton && <Button size="sm">Mark Item as Sold</Button>}
+                                </div>
+                                <Separator />
+                                <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-2 items-baseline">
+                                    <SummaryRow property={item?.categoryName} label="Category" />
+                                    <SummaryRow property={item?.subCategoryName} label="Sub-Category" />
+                                    <SummaryRow property={item?.brandName as string | undefined} label="Brand" />
+                                    <SummaryRow property={item?.size as string | undefined} label="Size" />
+                                    <SummaryRow property={item?.gender} label="Gender" />
+                                    <SummaryRow property={item?.condition ?? "—"} label="Condition" />
+                                    {item?.conditionDescription && <SummaryRow property={item?.conditionDescription} label="Addl Info" />}
+                                </div>
+                                <Separator />
+                                <Tabs defaultValue="description">
+                                    <TabsList variant="line">
+                                        <TabsTrigger value="description">Item Description</TabsTrigger>
+                                        <TabsTrigger value="purchase">Purchase Info</TabsTrigger>
+                                        <TabsTrigger value="status_history">Status History</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="description"><InventoryItemDesc item={item} /></TabsContent>
+                                </Tabs>
+                            </>
+                        )}
                     </div>
                 </div>
             {/* Edit Item Dialog */}
