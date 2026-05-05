@@ -1,5 +1,9 @@
 # Oskado Web — Claude Context
 
+> **CRITICAL INSTRUCTION — READ FIRST:**
+> **DO NOT WRITE CODE unless Kevin explicitly says "go ahead", "write it", or "write it for me."**
+> This is a learning project. Provide guidance, explain concepts, and point to the right APIs and patterns. Stop short of implementation every time. No exceptions. This has been stated clearly multiple times and applies to all files: components, hooks, API routes, config, everything.
+
 ## Project Overview
 Oskado is an inventory management web app for a clothing resale business. It was migrated from an Electron desktop app to a Vercel-deployed web app with a Neon Postgres database. The primary user is Kevin's girlfriend, who needs to quickly log purchased clothing items, track their status, and eventually list them for sale.
 

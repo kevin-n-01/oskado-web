@@ -11,6 +11,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { InventoryItem } from './pages/InventoryItem'
 import { Toaster } from './components/ui/sonner'
+import Login from './pages/Login'
+import ProtectedLayout from './components/ProtectedLayout'
 
 const App = (): ReactNode => {
 
@@ -20,14 +22,17 @@ const App = (): ReactNode => {
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <Routes>
+                    <Route path='/' element={<Login />} />
                     <Route element={<AppLayout />}>
-                        <Route path='/' element={<Dashboard />} />
-                        <Route path='/catalog' element={<Catalog />} />
-                        <Route path='/catalog/:sku' element={ <InventoryItem /> } />
-                        <Route path='/addItem' element={<AddItem />} />
-                        <Route path='/transactions' element={<Transactions />} />
-                        <Route path='/history' element={<History />} />
-                        <Route path='/analytics' element={<Analytics />} />
+                        <Route element={<ProtectedLayout />}>
+                            <Route path='/dashboard' element={<Dashboard />} />
+                            <Route path='/catalog' element={<Catalog />} />
+                            <Route path='/catalog/:sku' element={<InventoryItem />} />
+                            <Route path='/addItem' element={<AddItem />} />
+                            <Route path='/transactions' element={<Transactions />} />
+                            <Route path='/history' element={<History />} />
+                            <Route path='/analytics' element={<Analytics />} />
+                        </Route>
                     </Route>
                 </Routes>
             </BrowserRouter>

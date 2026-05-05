@@ -14,7 +14,7 @@ export const Catalog = () => {
                 <h1 className='text-2xl text-accent-foreground mb-4'>Product Catalog</h1>
             </div>
 
-            <div className='grid grid-cols-4 gap-4'>
+            <div className='grid grid-cols-4 gap-4 p-2'>
                 {inventoryIsLoading
                     ? Array.from({length: 16}).map((_, i) => <LoadingInventoryTile key={i} /> )
                     : inventory?.map((inventory) => (
