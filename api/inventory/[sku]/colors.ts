@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import sql from "../../server/lib/db";
+import sql from "../../../server/lib/db";
 import humps from 'humps';
 import { handleServerError } from "../../../server-utils";
 import { requireAuth } from "../../../server/auth";

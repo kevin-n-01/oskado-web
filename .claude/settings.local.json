@@ -13,7 +13,10 @@
       "WebFetch(domain:clerk.com)",
       "mcp__shadcn__view_items_in_registries",
       "mcp__shadcn__get_item_examples_from_registries",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(sed -i \"s|from \\\\\"../server/lib/db\\\\\"|from \\\\\"../../server/lib/db\\\\\"|g\" /home/kevro/projects/oskado-web/api/inventory/\\\\[sku\\\\].ts)",
+      "Bash(sed -i \"s|from '../server/lib/db'|from '../../server/lib/db'|g\" /home/kevro/projects/oskado-web/api/inventory/index.ts)",
+      "Bash(sed -i \"s|from \\\\\"../../server/lib/db\\\\\"|from \\\\\"../../../server/lib/db\\\\\"|g\" /home/kevro/projects/oskado-web/api/inventory/\\\\[sku\\\\]/colors.ts)"
     ]
   },
   "enableAllProjectMcpServers": true,
