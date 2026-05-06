@@ -12,7 +12,7 @@ const Login = (): React.ReactNode => {
     } else {
         return (
             <div className='w-full h-screen flex flex-col justify-center items-center border gap-4'>
-                <h1 className='text-5xl text-center font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400'>Oskado</h1>
+                <h1 className='text-6xl text-center font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400'>Oskado</h1>
                 <h2>Inventory Management App</h2>
                     <Show when="signed-out">
                         <div className='flex gap-4 pt-4'>
