@@ -7,7 +7,7 @@ type MarkItemSoldProps = {
     onOpenChange: (open: boolean) => void;
     item: Inventory;
 }
-export const MarkItemSold = ({ open, onOpenChange, item }: MarkItemSoldProps) => {
+export const MarkItemSold = ({ open, onOpenChange }: MarkItemSoldProps) => {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
