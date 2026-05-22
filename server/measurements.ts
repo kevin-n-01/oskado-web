@@ -1,4 +1,4 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import sql from "./lib/db";
 import humps from 'humps';
 import { handleServerError } from "../server-utils";

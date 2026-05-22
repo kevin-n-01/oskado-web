@@ -1,4 +1,4 @@
-import {VercelResponse} from '@vercel/node'
+import type {VercelResponse} from '@vercel/node'
 
 export function handleServerError(error: unknown, res: VercelResponse) {
 

@@ -1,4 +1,4 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import formidable, {Fields, Files} from 'formidable';
 import sharp from 'sharp';
 import { put } from "@vercel/blob";
