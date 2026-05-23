@@ -3,7 +3,7 @@ import formidable, {Fields, Files} from 'formidable';
 import sharp from 'sharp';
 import { put } from "@vercel/blob";
 import { randomUUID } from "crypto";
-import { requireAuth } from "../server/auth";
+import { requireAuth } from "./_lib/auth";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 

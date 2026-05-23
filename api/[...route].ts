@@ -1,16 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { brandsHandler } from '../server/brands';
-import { categoriesHandler } from '../server/categories';
-import { colorsHandler } from '../server/colors';
-import { fabricsHandler } from '../server/fabrics';
-import { locationsHandler } from '../server/locations';
-import { measurementsHandler } from '../server/measurements';
-import { seasonsHandler } from '../server/seasons';
-import { sizesHandler } from '../server/sizes';
-import { subCategoriesHandler } from '../server/subCategories';
-import { tagsHandler } from '../server/tags';
-import { websitesHandler } from '../server/websites';
-import { requireAuth } from '../server/auth';
+import { brandsHandler } from './_lib/brands';
+import { categoriesHandler } from './_lib/categories';
+import { colorsHandler } from './_lib/colors';
+import { fabricsHandler } from './_lib/fabrics';
+import { locationsHandler } from './_lib/locations';
+import { measurementsHandler } from './_lib/measurements';
+import { seasonsHandler } from './_lib/seasons';
+import { sizesHandler } from './_lib/sizes';
+import { subCategoriesHandler } from './_lib/subCategories';
+import { tagsHandler } from './_lib/tags';
+import { websitesHandler } from './_lib/websites';
+import { requireAuth } from './_lib/auth';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 

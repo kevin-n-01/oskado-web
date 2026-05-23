@@ -44,7 +44,4 @@ export const requireAuth = async (vReq: VercelRequest, res: VercelResponse): Pro
         res.status(401).json({error: "Unable to process authorization request."})
         return true;
     }
-
-
-
 }
