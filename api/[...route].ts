@@ -1,16 +1,16 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { brandsHandler } from './_lib/brands';
-import { categoriesHandler } from './_lib/categories';
-import { colorsHandler } from './_lib/colors';
-import { fabricsHandler } from './_lib/fabrics';
-import { locationsHandler } from './_lib/locations';
-import { measurementsHandler } from './_lib/measurements';
-import { seasonsHandler } from './_lib/seasons';
-import { sizesHandler } from './_lib/sizes';
-import { subCategoriesHandler } from './_lib/subCategories';
-import { tagsHandler } from './_lib/tags';
-import { websitesHandler } from './_lib/websites';
-import { requireAuth } from './_lib/auth';
+import { brandsHandler } from './_lib/brands.js';
+import { categoriesHandler } from './_lib/categories.js';
+import { colorsHandler } from './_lib/colors.js';
+import { fabricsHandler } from './_lib/fabrics.js';
+import { locationsHandler } from './_lib/locations.js';
+import { measurementsHandler } from './_lib/measurements.js';
+import { seasonsHandler } from './_lib/seasons.js';
+import { sizesHandler } from './_lib/sizes.js';
+import { subCategoriesHandler } from './_lib/subCategories.js';
+import { tagsHandler } from './_lib/tags.js';
+import { websitesHandler } from './_lib/websites.js';
+import { requireAuth } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
 

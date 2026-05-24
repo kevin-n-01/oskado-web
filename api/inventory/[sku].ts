@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import sql from "../_lib/db";
+import sql from "../_lib/db.js";
 import humps from 'humps';
-import { handleServerError } from "../_lib/utils";
-import { requireAuth } from "../_lib/auth";
+import { handleServerError } from "../_lib/utils.js";
+import { requireAuth } from "../_lib/auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if(await requireAuth(req, res)) return;

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import sql from './db';
+import sql from './db.js';
 import humps from 'humps';
-import { handleServerError } from './utils';
+import { handleServerError } from './utils.js';
 
 export async function fabricsHandler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'GET') {

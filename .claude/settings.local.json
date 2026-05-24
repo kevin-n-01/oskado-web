@@ -18,7 +18,8 @@
       "Bash(sed -i \"s|from '../server/lib/db'|from '../../server/lib/db'|g\" /home/kevro/projects/oskado-web/api/inventory/index.ts)",
       "Bash(sed -i \"s|from \\\\\"../../server/lib/db\\\\\"|from \\\\\"../../../server/lib/db\\\\\"|g\" /home/kevro/projects/oskado-web/api/inventory/\\\\[sku\\\\]/colors.ts)",
       "mcp__vercel__get_runtime_logs",
-      "mcp__vercel__get_deployment_build_logs"
+      "mcp__vercel__get_deployment_build_logs",
+      "Bash(xargs perl -i -pe \"s/from \\('\\)\\(\\\\\\\\.[^']*?\\)\\('\\)/from \\\\$1\\\\$2.js\\\\$3/g; s/from \\(\\\\\"\\)\\(\\\\\\\\.[^\\\\\"]*?\\)\\(\\\\\"\\)/from \\\\$1\\\\$2.js\\\\$3/g\")"
     ]
   },
   "enableAllProjectMcpServers": true,
