@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import sql from './lib/db';
+import sql from './db.js';
 import humps from 'humps';
 
 export async function brandsHandler(req: VercelRequest, res: VercelResponse) {

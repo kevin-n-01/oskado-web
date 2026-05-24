@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useLocation, useParams } from "react-router-dom"
 import { Skeleton } from "@/components/ui/skeleton";
+import { MarkItemSold } from "@/components/MarkItemSold";
 
 const SummaryRow = ({property, label}: {property: string | undefined; label: string | undefined} ) => {
     return (
@@ -38,6 +39,7 @@ export const InventoryItem = (): React.ReactNode => {
 
     const [showEditItemDetails, setShowItemDetails] = useState<boolean>(openDetails);
     const [ showMarkItemListed, setShowMarkItemListed ] = useState<boolean>(false);
+    const [ showMarkItemSold, setShowMarkItemSold ] = useState<boolean>(false);
 
     const showMarkItemListedButton = item?.status === "Inventoried" as Status;
     const showMarkItemSoldButton = item?.status === "Listed" as Status;
@@ -98,7 +100,7 @@ export const InventoryItem = (): React.ReactNode => {
                                 <div className="flex flex-row gap-2">
                                     <Button size="sm" onClick={() => setShowItemDetails(true)}>Edit Details</Button>
                                     {showMarkItemListedButton && <Button size="sm" onClick={() => setShowMarkItemListed(true)}>Mark Item as Listed</Button>}
-                                    {showMarkItemSoldButton && <Button size="sm">Mark Item as Sold</Button>}
+                                    {showMarkItemSoldButton && <Button size="sm" onClick={() => setShowMarkItemSold(true)}>Mark Item as Sold</Button>}
                                 </div>
                                 <Separator />
                                 <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-2 items-baseline">
@@ -126,6 +128,7 @@ export const InventoryItem = (): React.ReactNode => {
             {/* Edit Item Dialog */}
             {showEditItemDetails && item && <EditItemDetails open={showEditItemDetails} onOpenChange={setShowItemDetails} item={item} />}
             {showMarkItemListed && item && <MarkItemListed open={showMarkItemListed} onOpenChange={setShowMarkItemListed} item={item} />}
+            {showMarkItemSold && item && <MarkItemSold open={showMarkItemSold} onOpenChange={setShowMarkItemSold} item={item} />}
         </div>
     )
 }

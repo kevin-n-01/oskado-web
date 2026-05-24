@@ -1,7 +1,7 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
-import sql from "./lib/db";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import sql from "./db.js";
 import humps from 'humps';
-import { handleServerError } from "../server-utils";
+import { handleServerError } from "./utils.js";
 
 export async function measurementsHandler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'GET') {
